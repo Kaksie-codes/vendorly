@@ -116,7 +116,7 @@ export const mockProducts: Product[] = [
       'A brightening serum combining 15% L-ascorbic acid with 5% niacinamide. Reduces dark spots, improves skin texture, and gives a luminous glow. Suitable for all skin types. Fragrance-free and vegan.',
     shortDescription: 'Brightening vitamin C + niacinamide serum for all skin types.',
     images: [
-      { url: 'https://images.unsplash.com/photo-1570194065650-d99fb4bedf0a?w=800&q=80', alt: 'Radiance Serum bottle' },
+      { url: 'https://images.unsplash.com/photo-1656147961590-c454747afb06?q=80&w=385&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', alt: 'Radiance Serum bottle' },
       { url: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&q=80', alt: 'Serum texture' },
     ],
     price: 48.00,
