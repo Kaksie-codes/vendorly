@@ -1,3 +1,8 @@
+/* =============================================================================
+   File: globals.css
+   Path: app/globals.css
+   ============================================================================= */
+
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600;700&display=swap');
 
 @import "tailwindcss";
@@ -5,6 +10,24 @@
 /* ─────────────────────────────────────────────────────────────────────────────
    VENDORLY — Design System
    Tailwind v4: all tokens defined in @theme, base styles in @layer base
+
+   SINGLE SOURCE OF TRUTH — never use raw hex values in JSX/TSX.
+   Always reference a CSS variable: className="bg-[var(--color-danger-pink)]"
+
+   Token reference:
+     Backgrounds ............. --color-bg-*
+     Text .................... --color-text-*
+     Borders ................. --color-border-*
+     Accent gold ............. --color-accent-gold*
+     Neutrals ................ --color-neutral-*
+     Status: success ......... --color-success*
+     Status: warning ......... --color-warning*
+     Status: error ........... --color-error*
+     Status: danger (pink) ... --color-danger-*
+     Status: info ............ --color-info*
+     Status: purple .......... --color-purple*
+     Admin portal ............ --color-admin-*
+     Vendor portal ........... --color-vendor-*
 ───────────────────────────────────────────────────────────────────────────── */
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -41,22 +64,62 @@
   --color-accent-gold-dark:  #a8892f;
   --color-accent-gold-muted: #f7f1e3;
 
-  /* ── Colors — Status ── */
+  /* ── Colors — Neutrals ── */
+  /* Previously hardcoded as #2a2a2a in btn-primary :hover */
+  --color-neutral-hover: #2a2a2a;
+
+  /* ── Colors — Status: Success ── */
   --color-success:        #16a34a;
   --color-success-bg:     #f0fdf4;
+  --color-success-light:  #dcfce7;   /* was hardcoded in JSX */
   --color-success-border: #bbf7d0;
+  --color-success-dot:    #4ade80;   /* was hardcoded in JSX */
 
+  /* ── Colors — Status: Warning ── */
   --color-warning:        #d97706;
   --color-warning-bg:     #fffbeb;
+  --color-warning-light:  #fef3c7;   /* was hardcoded in JSX */
   --color-warning-border: #fde68a;
+  --color-warning-dot:    #fbbf24;   /* was hardcoded in JSX */
 
+  /* ── Colors — Status: Error ── */
   --color-error:          #dc2626;
   --color-error-bg:       #fef2f2;
+  --color-error-light:    #fee2e2;   /* was hardcoded in JSX */
+  --color-error-mid:      #dc2626;   /* semantic alias */
   --color-error-border:   #fecaca;
+  --color-error-dot:      #f87171;   /* was hardcoded in JSX */
 
+  /* ── Colors — Status: Danger (pink, destructive actions) ── */
+  /* Previously hardcoded — NOT in @theme */
+  --color-danger-pink:       #fecdd3;   /* danger zone badge / border */
+  --color-danger-pink-light: #fff1f2;   /* danger zone section bg */
+
+  /* ── Colors — Status: Info ── */
   --color-info:           #2563eb;
   --color-info-bg:        #eff6ff;
+  --color-info-light:     #dbeafe;   /* was hardcoded in JSX */
   --color-info-border:    #bfdbfe;
+  --color-info-dot:       #60a5fa;   /* was hardcoded in JSX */
+
+  /* ── Colors — Status: Purple ── */
+  --color-purple:         #7c3aed;
+  --color-purple-bg:      #ede9fe;   /* was hardcoded in JSX */
+
+  /* ── Colors — Admin portal ── */
+  --color-admin-sidebar:  #0f0f0f;
+  --color-admin-accent:   #ef4444;
+  --color-admin-bg:       #f5f5f4;
+
+  /* ── Colors — Vendor portal ── */
+  --color-vendor-sidebar: #111111;
+  --color-vendor-accent:  #c8a951;   /* alias of accent-gold */
+
+  /* ── Opacity scale — extra steps for sidebar overlays ── */
+  --opacity-6:  0.06;
+  --opacity-8:  0.08;
+  --opacity-12: 0.12;
+  --opacity-15: 0.15;
 
   /* ── Spacing extras ── */
   --spacing-4-5: 1.125rem;
@@ -408,7 +471,7 @@
     background-color: var(--color-text-primary);
     color: var(--color-text-inverse);
     border-color: var(--color-text-primary);
-    &:hover { background-color: #2a2a2a; border-color: #2a2a2a; }
+    &:hover { background-color: var(--color-neutral-hover); border-color: var(--color-neutral-hover); }
   }
 
   .btn-gold {
@@ -474,7 +537,7 @@
   .aspect-vendor  { aspect-ratio: 5 / 2;  }
 
   .text-gold-gradient {
-    background: linear-gradient(135deg, #c8a951, #e8d5a3, #a8892f);
+    background: linear-gradient(135deg, var(--color-accent-gold), var(--color-accent-gold-light), var(--color-accent-gold-dark));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -504,4 +567,32 @@
     background: linear-gradient(180deg, transparent 50%, rgb(0 0 0 / 0.4) 100%);
     border-radius: inherit;
   }
+}
+
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Admin Portal — Utility Classes
+   Only classes actively used in admin JSX; layout/nav use Tailwind utilities
+   directly with @theme tokens (bg-bg-subtle, font-heading, etc.)
+───────────────────────────────────────────────────────────────────────────── */
+
+/* ── Page title — overrides global h1/h2/h3 clamp() size rules ── */
+.admin-page-title {
+  font-family: var(--font-heading);
+  font-size: 1.75rem !important;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+/* ── Stat value — Playfair Display for dashboard numbers ── */
+.admin-stat-value {
+  font-family: var(--font-heading);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1.1;
+  margin-top: 0.5rem;
+  letter-spacing: -0.02em;
 }

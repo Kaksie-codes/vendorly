@@ -55,14 +55,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     href === '/admin/dashboard' ? pathname === href : pathname.startsWith(href)
 
   return (
-    <div className="flex min-h-screen bg-[#f5f5f4]">
+    <div className="flex min-h-screen bg-bg-subtle">
 
       {/* ── Desktop sidebar ── */}
       <aside className="hidden lg:flex flex-col w-60 shrink-0 bg-[#0f0f0f] min-h-screen sticky top-0 h-screen">
         {/* Logo */}
         <div className="px-6 py-5 border-b border-white/10">
           <Link href="/admin/dashboard" className="flex flex-col">
-            <span className="font-serif text-lg font-bold text-white leading-none">Vendorly</span>
+            <span className="font-heading text-lg font-bold text-white leading-none">Vendorly</span>
             <span className="text-[0.6rem] text-[#ef4444]/80 uppercase tracking-[0.15em] mt-0.5 font-semibold">Admin Console</span>
           </Link>
         </div>
@@ -114,7 +114,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* ── Mobile top bar ── */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-[#0f0f0f] px-4 py-3 flex items-center justify-between border-b border-white/10">
         <div className="flex flex-col">
-          <span className="font-serif font-bold text-white text-sm">Vendorly</span>
+          <span className="font-heading font-bold text-white text-sm">Vendorly</span>
           <span className="text-[0.5rem] text-[#ef4444]/80 uppercase tracking-widest font-semibold">Admin</span>
         </div>
         <button onClick={() => setMobileOpen(!mobileOpen)} className="text-white/60 hover:text-white transition-colors p-1">
@@ -125,7 +125,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </button>
       </div>
 
-      {/* Mobile menu drawer */}
+      {/* ── Mobile menu drawer ── */}
       {mobileOpen && (
         <div className="lg:hidden fixed inset-0 z-40 pt-14" onClick={() => setMobileOpen(false)}>
           <div className="bg-[#0f0f0f] w-56 h-full flex flex-col p-3 gap-0.5" onClick={(e) => e.stopPropagation()}>
