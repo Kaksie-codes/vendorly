@@ -6,7 +6,7 @@
 import React from 'react'
 import { Navbar }       from '@/components/layout/Navbar'
 import { Footer }       from '@/components/layout/Footer'
-import { CartProvider } from '@/components/storefront/CartProvider'
+import { CartProvider } from '@/providers/CartProvider'
 
 export default function StorefrontLayout({ children }: { children: React.ReactNode }) {
   return (

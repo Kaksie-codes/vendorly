@@ -8,7 +8,7 @@
 import React, { useState } from 'react'
 import Link  from 'next/link'
 import Image from 'next/image'
-import { useCart } from '@/components/storefront/CartProvider'
+import { useCart } from '@/providers/CartProvider'
 
 // ─── Step types ───────────────────────────────────────────────────────────────
 
