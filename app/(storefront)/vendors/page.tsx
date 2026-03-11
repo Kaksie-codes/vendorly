@@ -82,13 +82,6 @@ export default function VendorsPage() {
           onChange={setSort}
           options={SORT_OPTIONS}
         />
-        {/* <select
-          value={sort}
-          onChange={(e) => setSort(e.target.value)}
-          className="px-3 py-2.5 text-sm border border-border-subtle rounded-xl bg-bg-primary focus:outline-none focus:border-accent-gold text-text-primary"
-        >
-          {SORT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select> */}
       </div>
 
       {/* Category pills */}
