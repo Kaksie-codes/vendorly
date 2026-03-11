@@ -10,9 +10,10 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { mockProducts, getFeaturedCategories, mockVendors } from '@/lib/mock-data'
 import type { Product } from '@/types'
-import { Rating }    from '@/components/ui/Rating'
-import { Badge }     from '@/components/ui/Badge'
+import { Rating }     from '@/components/ui/Rating'
+import { Badge }      from '@/components/ui/Badge'
 import { Pagination } from '@/components/ui/Pagination'
+import ResetFilters from '@/components/ui/ResetFilters'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -27,10 +28,10 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
 ]
 
 const PRICE_RANGES = [
-  { label: 'All Prices',           min: 0,     max: Infinity },
-  { label: 'Under ₦10,000',        min: 0,     max: 10000 },
-  { label: '₦10,000 – ₦50,000',   min: 10000, max: 50000 },
-  { label: '₦50,000 – ₦100,000',  min: 50000, max: 100000 },
+  { label: 'All Prices',           min: 0,      max: Infinity },
+  { label: 'Under ₦10,000',        min: 0,      max: 10000 },
+  { label: '₦10,000 – ₦50,000',   min: 10000,  max: 50000 },
+  { label: '₦50,000 – ₦100,000',  min: 50000,  max: 100000 },
   { label: 'Above ₦100,000',       min: 100000, max: Infinity },
 ]
 
@@ -41,14 +42,14 @@ const PAGE_SIZE = 8
 export default function ProductsPage() {
   const categories = getFeaturedCategories()
 
-  const [search,        setSearch]       = useState('')
-  const [sort,          setSort]         = useState<SortOption>('featured')
-  const [selectedCat,   setSelectedCat]  = useState<string>('all')
-  const [priceRange,    setPriceRange]   = useState(0) // index into PRICE_RANGES
-  const [minRating,     setMinRating]    = useState(0)
-  const [filtersOpen,   setFiltersOpen]  = useState(false)
-  const [page,          setPage]         = useState(1)
-  const [view,          setView]         = useState<'grid' | 'list'>('grid')
+  const [search,        setSearch]      = useState('')
+  const [sort,          setSort]        = useState<SortOption>('featured')
+  const [selectedCat,   setSelectedCat] = useState<string>('all')
+  const [priceRange,    setPriceRange]  = useState(0)
+  const [minRating,     setMinRating]   = useState(0)
+  const [filtersOpen,   setFiltersOpen] = useState(false)
+  const [page,          setPage]        = useState(1)
+  const [view,          setView]        = useState<'grid' | 'list'>('grid')
 
   // ── Filter + sort ──────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
@@ -56,7 +57,6 @@ export default function ProductsPage() {
 
     let list = mockProducts.filter((p) => {
       const price = p.variants?.[0]?.price ?? p.price
-
       if (search && !p.name.toLowerCase().includes(search.toLowerCase()) &&
           !p.description?.toLowerCase().includes(search.toLowerCase())) return false
       if (selectedCat !== 'all' && p.categoryId !== selectedCat) return false
@@ -88,17 +88,17 @@ export default function ProductsPage() {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="w-full max-w-360 mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
       {/* Page header */}
       <div className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-widest text-[#c8a951] mb-1">Vendorly Store</p>
-        <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#111111]">All Products</h1>
+        <p className="text-xs font-semibold uppercase tracking-widest text-accent-gold mb-1">Vendorly Store</p>
+        <h1 className="font-serif text-3xl sm:text-4xl font-bold text-text-primary">All Products</h1>
       </div>
 
       {/* Search bar */}
       <div className="relative mb-6">
-        <svg className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9ca3af]" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
         </svg>
         <input
@@ -106,12 +106,12 @@ export default function ProductsPage() {
           placeholder="Search products…"
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1) }}
-          className="w-full pl-10 pr-4 py-3 text-sm text-[#111111] bg-white border border-[#e5e5e5] rounded-xl outline-none focus:border-[#c8a951] focus:shadow-[0_0_0_3px_rgb(200_169_81_/_0.12)] transition-all placeholder:text-[#9ca3af]"
+          className="w-full pl-10 pr-4 py-3 text-sm text-text-primary bg-bg-primary border border-border-subtle rounded-xl outline-none focus:border-accent-gold focus:shadow-[0_0_0_3px_rgb(200_169_81/0.12)] transition-all placeholder:text-text-muted"
         />
         {search && (
           <button
             onClick={() => setSearch('')}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9ca3af] hover:text-[#111111] transition-colors"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12" /></svg>
           </button>
@@ -144,19 +144,19 @@ export default function ProductsPage() {
               {/* Mobile filter toggle */}
               <button
                 onClick={() => setFiltersOpen(true)}
-                className="lg:hidden flex items-center gap-2 px-3 py-2 text-sm font-medium text-[#6b6b6b] border border-[#e5e5e5] rounded-lg hover:bg-[#f5f5f4] transition-colors"
+                className="lg:hidden flex items-center gap-2 px-3 py-2 text-sm font-medium text-text-secondary border border-border-subtle rounded-lg hover:bg-bg-subtle transition-colors"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="4" y1="6" x2="20" y2="6" /><line x1="8" y1="12" x2="16" y2="12" /><line x1="11" y1="18" x2="13" y2="18" />
                 </svg>
                 Filters
                 {hasActiveFilters && (
-                  <span className="w-2 h-2 rounded-full bg-[#c8a951]" />
+                  <span className="w-2 h-2 rounded-full bg-accent-gold" />
                 )}
               </button>
 
-              <p className="text-sm text-[#9ca3af]">
-                <span className="font-medium text-[#111111]">{filtered.length}</span> products
+              <p className="text-sm text-text-muted">
+                <span className="font-medium text-text-primary">{filtered.length}</span> products
               </p>
             </div>
 
@@ -166,20 +166,20 @@ export default function ProductsPage() {
                 <select
                   value={sort}
                   onChange={(e) => { setSort(e.target.value as SortOption); setPage(1) }}
-                  className="appearance-none pl-3 pr-8 py-2 text-sm text-[#111111] bg-white border border-[#e5e5e5] rounded-lg outline-none focus:border-[#c8a951] transition-all cursor-pointer"
+                  className="appearance-none pl-3 pr-8 py-2 text-sm text-text-primary bg-bg-primary border border-border-subtle rounded-lg outline-none focus:border-accent-gold transition-all cursor-pointer"
                 >
                   {SORT_OPTIONS.map((o) => (
                     <option key={o.value} value={o.value}>{o.label}</option>
                   ))}
                 </select>
-                <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#9ca3af]" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M6 9l6 6 6-6" /></svg>
+                <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M6 9l6 6 6-6" /></svg>
               </div>
 
               {/* View toggle */}
-              <div className="flex border border-[#e5e5e5] rounded-lg overflow-hidden">
+              <div className="flex border border-border-subtle rounded-lg overflow-hidden">
                 <button
                   onClick={() => setView('grid')}
-                  className={`p-2 transition-colors ${view === 'grid' ? 'bg-[#111111] text-white' : 'text-[#9ca3af] hover:bg-[#f5f5f4]'}`}
+                  className={`p-2 transition-colors ${view === 'grid' ? 'bg-text-primary text-text-inverse' : 'text-text-muted hover:bg-bg-subtle'}`}
                   aria-label="Grid view"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -188,7 +188,7 @@ export default function ProductsPage() {
                 </button>
                 <button
                   onClick={() => setView('list')}
-                  className={`p-2 border-l border-[#e5e5e5] transition-colors ${view === 'list' ? 'bg-[#111111] text-white' : 'text-[#9ca3af] hover:bg-[#f5f5f4]'}`}
+                  className={`p-2 border-l border-border-subtle transition-colors ${view === 'list' ? 'bg-text-primary text-text-inverse' : 'text-text-muted hover:bg-bg-subtle'}`}
                   aria-label="List view"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -214,7 +214,7 @@ export default function ProductsPage() {
               {minRating > 0 && (
                 <FilterChip label={`${minRating}+ stars`} onRemove={() => setMinRating(0)} />
               )}
-              <button onClick={resetFilters} className="text-xs text-[#dc2626] hover:underline px-1">
+              <button onClick={resetFilters} className="text-xs text-error hover:underline px-1">
                 Clear all
               </button>
             </div>
@@ -223,18 +223,18 @@ export default function ProductsPage() {
           {/* Empty state */}
           {paginated.length === 0 && (
             <div className="flex flex-col items-center justify-center py-20 gap-4">
-              <div className="w-16 h-16 flex items-center justify-center rounded-2xl bg-[#f5f5f4] text-[#9ca3af]">
+              <div className="w-16 h-16 flex items-center justify-center rounded-2xl bg-bg-subtle text-text-muted">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
                   <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
                 </svg>
               </div>
               <div className="text-center">
-                <p className="font-semibold text-[#111111]">No products found</p>
-                <p className="text-sm text-[#9ca3af] mt-1">Try adjusting your filters or search term.</p>
+                <p className="font-semibold text-text-primary">No products found</p>
+                <p className="text-sm text-text-muted mt-1">Try adjusting your filters or search term.</p>
               </div>
               <button
                 onClick={resetFilters}
-                className="px-4 py-2 text-sm font-medium bg-[#111111] text-white rounded-lg hover:bg-[#2a2a2a] transition-colors"
+                className="px-4 py-2 text-sm font-medium bg-text-primary text-text-inverse rounded-lg hover:bg-neutral-hover transition-colors"
               >
                 Reset Filters
               </button>
@@ -252,7 +252,7 @@ export default function ProductsPage() {
 
           {/* List view */}
           {view === 'list' && paginated.length > 0 && (
-            <div className="flex flex-col divide-y divide-[#e5e5e5]">
+            <div className="flex flex-col divide-y divide-border-subtle">
               {paginated.map((product) => (
                 <ProductListRow key={product.id} product={product} />
               ))}
@@ -274,14 +274,14 @@ export default function ProductsPage() {
 
       {/* ── Mobile filter drawer ──────────────────────────────────────────── */}
       {filtersOpen && (
-        <div className="fixed inset-0 z-[200] lg:hidden">
+        <div className="fixed inset-0 z-200 lg:hidden">
           <div className="absolute inset-0 bg-black/40" onClick={() => setFiltersOpen(false)} />
-          <div className="absolute right-0 top-0 bottom-0 w-72 bg-white shadow-2xl overflow-y-auto">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-[#e5e5e5]">
-              <h2 className="font-semibold text-[#111111]">Filters</h2>
+          <div className="absolute right-0 top-0 bottom-0 w-72 bg-bg-primary shadow-2xl overflow-y-auto">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border-subtle">
+              <h2 className="font-semibold text-text-primary">Filters</h2>
               <button
                 onClick={() => setFiltersOpen(false)}
-                className="p-1.5 rounded-lg text-[#9ca3af] hover:text-[#111111] hover:bg-[#f5f5f4] transition-colors"
+                className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-bg-subtle transition-colors"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12" /></svg>
               </button>
@@ -302,7 +302,7 @@ export default function ProductsPage() {
             <div className="px-5 pb-5">
               <button
                 onClick={() => setFiltersOpen(false)}
-                className="w-full bg-[#111111] text-white text-sm font-medium py-3 rounded-xl hover:bg-[#2a2a2a] transition-colors"
+                className="w-full bg-text-primary text-text-inverse text-sm font-medium py-3 rounded-xl hover:bg-neutral-hover transition-colors"
               >
                 Show {filtered.length} Results
               </button>
@@ -318,9 +318,9 @@ export default function ProductsPage() {
 
 function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
-    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#f7f1e3] border border-[#e8d5a3] text-[#a8892f] text-xs font-medium rounded-full">
+    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-accent-gold-muted border border-accent-gold-light text-accent-gold-dark text-xs font-medium rounded-full">
       {label}
-      <button onClick={onRemove} className="hover:text-[#111111] transition-colors" aria-label="Remove filter">
+      <button onClick={onRemove} className="hover:text-text-primary transition-colors" aria-label="Remove filter">
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6L6 18M6 6l12 12" /></svg>
       </button>
     </span>
@@ -336,7 +336,7 @@ function ProductCard({ product }: { product: Product }) {
 
   return (
     <Link href={`/products/${product.slug}`} className="group flex flex-col gap-3">
-      <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-[#f5f5f4]">
+      <div className="relative aspect-3/4 rounded-2xl overflow-hidden bg-bg-subtle">
         {image && (
           <Image
             src={image.url}
@@ -348,13 +348,13 @@ function ProductCard({ product }: { product: Product }) {
         )}
 
         <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-          {product.isNew         && <span className="bg-[#111111] text-white text-[0.6rem] font-bold uppercase tracking-wider px-2 py-1 rounded-md">New</span>}
-          {product.compareAtPrice && <span className="bg-[#dc2626] text-white text-[0.6rem] font-bold uppercase tracking-wider px-2 py-1 rounded-md">Sale</span>}
+          {product.isNew          && <span className="bg-text-primary text-text-inverse text-[0.6rem] font-bold uppercase tracking-wider px-2 py-1 rounded-md">New</span>}
+          {product.compareAtPrice && <span className="bg-error text-text-inverse text-[0.6rem] font-bold uppercase tracking-wider px-2 py-1 rounded-md">Sale</span>}
         </div>
 
         <button
           onClick={(e) => e.preventDefault()}
-          className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-white/90 text-[#6b6b6b] hover:text-[#dc2626] opacity-0 group-hover:opacity-100 transition-all duration-200"
+          className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-white/90 text-text-secondary hover:text-error opacity-0 group-hover:opacity-100 transition-all duration-200"
           aria-label="Wishlist"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" /></svg>
@@ -363,7 +363,7 @@ function ProductCard({ product }: { product: Product }) {
         <div className="absolute bottom-3 left-3 right-3 translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
           <button
             onClick={(e) => e.preventDefault()}
-            className="w-full bg-[#111111]/90 backdrop-blur-sm text-white text-xs font-medium py-2.5 rounded-xl hover:bg-[#111111] transition-colors"
+            className="w-full bg-text-primary/90 backdrop-blur-sm text-text-inverse text-xs font-medium py-2.5 rounded-xl hover:bg-text-primary transition-colors"
           >
             Quick Add
           </button>
@@ -371,13 +371,13 @@ function ProductCard({ product }: { product: Product }) {
       </div>
 
       <div className="flex flex-col gap-1 px-0.5">
-        {vendor && <p className="text-xs text-[#9ca3af] truncate">{vendor.storeName}</p>}
-        <h3 className="text-sm font-medium text-[#111111] leading-snug line-clamp-2 group-hover:text-[#c8a951] transition-colors">{product.name}</h3>
+        {vendor && <p className="text-xs text-text-muted truncate">{vendor.storeName}</p>}
+        <h3 className="text-sm font-medium text-text-primary leading-snug line-clamp-2 group-hover:text-accent-gold transition-colors">{product.name}</h3>
         <Rating value={product.rating} size="sm" showCount={product.reviewCount} />
         <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-sm font-semibold text-[#111111]">₦{price.toLocaleString()}</span>
+          <span className="text-sm font-semibold text-text-primary">₦{price.toLocaleString()}</span>
           {product.compareAtPrice && (
-            <span className="text-xs text-[#9ca3af] line-through">₦{product.compareAtPrice.toLocaleString()}</span>
+            <span className="text-xs text-text-muted line-through">₦{product.compareAtPrice.toLocaleString()}</span>
           )}
         </div>
       </div>
@@ -396,9 +396,9 @@ function ProductListRow({ product }: { product: Product }) {
   return (
     <Link
       href={`/products/${product.slug}`}
-      className="group flex items-center gap-4 py-4 hover:bg-[#fafaf9] -mx-3 px-3 rounded-xl transition-colors"
+      className="group flex items-center gap-4 py-4 hover:bg-bg-muted -mx-3 px-3 rounded-xl transition-colors"
     >
-      <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden bg-[#f5f5f4] shrink-0">
+      <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden bg-bg-subtle shrink-0">
         {image && (
           <Image
             src={image.url}
@@ -411,17 +411,17 @@ function ProductListRow({ product }: { product: Product }) {
       </div>
 
       <div className="flex-1 min-w-0 flex flex-col gap-1">
-        {vendor && <p className="text-xs text-[#9ca3af]">{vendor.storeName}</p>}
-        <h3 className="text-sm font-medium text-[#111111] group-hover:text-[#c8a951] transition-colors line-clamp-1">{product.name}</h3>
-        <p className="text-xs text-[#9ca3af] line-clamp-2 hidden sm:block">{product.description}</p>
+        {vendor && <p className="text-xs text-text-muted">{vendor.storeName}</p>}
+        <h3 className="text-sm font-medium text-text-primary group-hover:text-accent-gold transition-colors line-clamp-1">{product.name}</h3>
+        <p className="text-xs text-text-muted line-clamp-2 hidden sm:block">{product.description}</p>
         <Rating value={product.rating} size="sm" showCount={product.reviewCount} />
       </div>
 
       <div className="flex flex-col items-end gap-2 shrink-0">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-[#111111]">₦{price.toLocaleString()}</span>
+          <span className="text-sm font-semibold text-text-primary">₦{price.toLocaleString()}</span>
           {isSale && (
-            <span className="text-xs text-[#9ca3af] line-through">₦{product.compareAtPrice!.toLocaleString()}</span>
+            <span className="text-xs text-text-muted line-through">₦{product.compareAtPrice!.toLocaleString()}</span>
           )}
         </div>
         {isSale && (
@@ -429,7 +429,7 @@ function ProductListRow({ product }: { product: Product }) {
         )}
         <button
           onClick={(e) => e.preventDefault()}
-          className="hidden sm:block px-4 py-1.5 text-xs font-medium bg-[#111111] text-white rounded-lg hover:bg-[#2a2a2a] transition-colors"
+          className="hidden sm:block px-4 py-1.5 text-xs font-medium bg-text-primary text-text-inverse rounded-lg hover:bg-neutral-hover transition-colors"
         >
           Add to Cart
         </button>
@@ -438,20 +438,20 @@ function ProductListRow({ product }: { product: Product }) {
   )
 }
 
-// ─── Filter Panel (top-level component, receives state as props) ──────────────
+// ─── Filter Panel ─────────────────────────────────────────────────────────────
 
 type Category = ReturnType<typeof getFeaturedCategories>[0]
 
 type FilterPanelProps = {
-  categories:      Category[]
-  selectedCat:     string
-  setSelectedCat:  (v: string) => void
-  priceRange:      number
-  setPriceRange:   (v: number) => void
-  minRating:       number
-  setMinRating:    (v: number) => void
+  categories:       Category[]
+  selectedCat:      string
+  setSelectedCat:   (v: string) => void
+  priceRange:       number
+  setPriceRange:    (v: number) => void
+  minRating:        number
+  setMinRating:     (v: number) => void
   hasActiveFilters: boolean
-  onReset:         () => void
+  onReset:          () => void
 }
 
 function FilterPanel({
@@ -465,14 +465,14 @@ function FilterPanel({
 
       {/* Categories */}
       <div>
-        <h3 className="text-xs font-semibold uppercase tracking-widest text-[#9ca3af] mb-3">Category</h3>
+        <h3 className="text-xs font-semibold uppercase tracking-widest text-text-muted mb-3">Category</h3>
         <div className="flex flex-col gap-1">
           <button
             onClick={() => setSelectedCat('all')}
             className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
               selectedCat === 'all'
-                ? 'bg-[#111111] text-white font-medium'
-                : 'text-[#6b6b6b] hover:bg-[#f5f5f4] hover:text-[#111111]'
+                ? 'bg-text-primary text-text-inverse font-medium'
+                : 'text-text-secondary hover:bg-bg-subtle hover:text-text-primary'
             }`}
           >
             <span>All Categories</span>
@@ -486,8 +486,8 @@ function FilterPanel({
                 onClick={() => setSelectedCat(cat.id)}
                 className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
                   selectedCat === cat.id
-                    ? 'bg-[#111111] text-white font-medium'
-                    : 'text-[#6b6b6b] hover:bg-[#f5f5f4] hover:text-[#111111]'
+                    ? 'bg-text-primary text-text-inverse font-medium'
+                    : 'text-text-secondary hover:bg-bg-subtle hover:text-text-primary'
                 }`}
               >
                 <span>{cat.name}</span>
@@ -500,7 +500,7 @@ function FilterPanel({
 
       {/* Price range */}
       <div>
-        <h3 className="text-xs font-semibold uppercase tracking-widest text-[#9ca3af] mb-3">Price Range</h3>
+        <h3 className="text-xs font-semibold uppercase tracking-widest text-text-muted mb-3">Price Range</h3>
         <div className="flex flex-col gap-1">
           {PRICE_RANGES.map((range, i) => (
             <button
@@ -508,14 +508,14 @@ function FilterPanel({
               onClick={() => setPriceRange(i)}
               className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-left transition-colors ${
                 priceRange === i
-                  ? 'bg-[#111111] text-white font-medium'
-                  : 'text-[#6b6b6b] hover:bg-[#f5f5f4] hover:text-[#111111]'
+                  ? 'bg-text-primary text-text-inverse font-medium'
+                  : 'text-text-secondary hover:bg-bg-subtle hover:text-text-primary'
               }`}
             >
               <span className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                priceRange === i ? 'border-white' : 'border-[#d1d5db]'
+                priceRange === i ? 'border-text-inverse' : 'border-border-medium'
               }`}>
-                {priceRange === i && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
+                {priceRange === i && <span className="w-1.5 h-1.5 rounded-full bg-text-inverse" />}
               </span>
               {range.label}
             </button>
@@ -525,7 +525,7 @@ function FilterPanel({
 
       {/* Min rating */}
       <div>
-        <h3 className="text-xs font-semibold uppercase tracking-widest text-[#9ca3af] mb-3">Minimum Rating</h3>
+        <h3 className="text-xs font-semibold uppercase tracking-widest text-text-muted mb-3">Minimum Rating</h3>
         <div className="flex flex-col gap-1">
           {[0, 3, 3.5, 4, 4.5].map((r) => (
             <button
@@ -533,19 +533,19 @@ function FilterPanel({
               onClick={() => setMinRating(r)}
               className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-left transition-colors ${
                 minRating === r
-                  ? 'bg-[#111111] text-white font-medium'
-                  : 'text-[#6b6b6b] hover:bg-[#f5f5f4] hover:text-[#111111]'
+                  ? 'bg-text-primary text-text-inverse font-medium'
+                  : 'text-text-secondary hover:bg-bg-subtle hover:text-text-primary'
               }`}
             >
               <span className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                minRating === r ? 'border-white' : 'border-[#d1d5db]'
+                minRating === r ? 'border-text-inverse' : 'border-border-medium'
               }`}>
-                {minRating === r && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
+                {minRating === r && <span className="w-1.5 h-1.5 rounded-full bg-text-inverse" />}
               </span>
               {r === 0 ? 'Any Rating' : (
                 <span className="flex items-center gap-1">
                   {r}+
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill={minRating === r ? 'white' : '#c8a951'}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill={minRating === r ? 'white' : 'var(--color-accent-gold)'}>
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                   </svg>
                 </span>
@@ -557,15 +557,7 @@ function FilterPanel({
 
       {/* Reset */}
       {hasActiveFilters && (
-        <button
-          onClick={onReset}
-          className="flex items-center gap-2 text-sm text-[#dc2626] hover:text-red-700 transition-colors px-3 py-1"
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
-          </svg>
-          Reset Filters
-        </button>
+       <ResetFilters onReset={onReset}/>
       )}
     </aside>
   )
