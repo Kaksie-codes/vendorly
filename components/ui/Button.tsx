@@ -4,6 +4,7 @@
 // -----------------------------------------------------------------------------
 
 import React from 'react'
+import Link from 'next/link'
 
 type ButtonVariant = 'primary' | 'gold' | 'outline' | 'ghost' | 'danger'
 type ButtonSize    = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
@@ -19,11 +20,11 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: 'bg-[#111111] text-white border-[#111111] hover:bg-[#2a2a2a] hover:border-[#2a2a2a]',
-  gold:    'bg-[#c8a951] text-white border-[#c8a951] hover:bg-[#a8892f] hover:border-[#a8892f] shadow-[0_2px_8px_-2px_rgb(200_169_81_/_0.35)]',
-  outline: 'bg-transparent text-[#111111] border-[#d1d5db] hover:bg-[#f5f5f4] hover:border-[#111111]',
-  ghost:   'bg-transparent text-[#6b6b6b] border-transparent hover:bg-[#f5f5f4] hover:text-[#111111]',
-  danger:  'bg-[#dc2626] text-white border-[#dc2626] hover:bg-red-700 hover:border-red-700',
+  primary: 'bg-text-primary text-text-inverse border-text-primary hover:bg-neutral-hover hover:border-neutral-hover',
+  gold:    'bg-accent-gold text-text-inverse border-accent-gold hover:bg-accent-gold-dark hover:border-accent-gold-dark shadow-gold-sm',
+  outline: 'bg-transparent text-text-primary border-border-medium hover:bg-bg-subtle hover:border-text-primary',
+  ghost:   'bg-transparent text-text-secondary border-transparent hover:bg-bg-subtle hover:text-text-primary',
+  danger:  'bg-error text-text-inverse border-error hover:bg-red-700 hover:border-red-700',
 }
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -71,7 +72,7 @@ export function Button({
   )
 
   if (href) {
-    return <a href={href} className={base}>{content}</a>
+    return <Link href={href} className={base}>{content}</Link>
   }
 
   return (

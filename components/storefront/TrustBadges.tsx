@@ -2,7 +2,7 @@ import React from 'react'
 
 const TrustBadges = () => {
   return (
-    <section className="border-t border-border-subtle bg-bg-primary py-12">
+    <section className="border-t border-border-subtle bg-bg-primary pt-24">
         <div className="w-full max-w-360 mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
