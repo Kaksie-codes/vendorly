@@ -181,7 +181,7 @@ export const mockProducts: Product[] = [
       'Long-lasting lip tints with a comfortable velvet finish. Infused with vitamin E and jojoba oil. Buildable colour, transfer-proof formula. Cruelty-free.',
     shortDescription: 'Vitamin E-infused velvet lip tints, 6 shades.',
     images: [
-      { url: 'https://images.unsplash.com/photo-1586495777744-4e6232bf8d7b?w=800&q=80', alt: 'Velvet Lip Tint shades' },
+      { url: 'https://images.unsplash.com/photo-1654374504608-67c4cfe65fca?q=80&w=465&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', alt: 'Velvet Lip Tint shades' },
     ],
     price: 22.00,
     currency: 'USD',
@@ -257,7 +257,7 @@ export const mockProducts: Product[] = [
       'Charge your phone, earbuds, and smartwatch simultaneously. MagSafe compatible, 15W fast charging. Slim profile with LED status ring. Compatible with all Qi-enabled devices.',
     shortDescription: '3-in-1 wireless charging pad, MagSafe compatible.',
     images: [
-      { url: 'https://images.unsplash.com/photo-1609592806596-b85e4d6c4e83?w=800&q=80', alt: 'MagCharge wireless pad' },
+      { url: 'https://images.unsplash.com/photo-1674901583166-fc8efef37a7b?q=80&w=327&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', alt: 'MagCharge wireless pad' },
     ],
     price: 79.00,
     compareAtPrice: 99.00,
@@ -381,7 +381,7 @@ export const mockProducts: Product[] = [
       'Set of 4 hand-poured 100% pure beeswax candles with dried botanical inclusions. Naturally honey-scented, cotton wick, 30-hour burn time each. Presented in a kraft gift box.',
     shortDescription: 'Set of 4 hand-poured beeswax candles with botanicals.',
     images: [
-      { url: 'https://images.unsplash.com/photo-1602523961358-f9f03dd8048d?w=800&q=80', alt: 'Beeswax candle set' },
+      { url: 'https://images.unsplash.com/photo-1668086682339-f14262879c18?q=80&w=813&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', alt: 'Beeswax candle set' },
       { url: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=800&q=80', alt: 'Candles lit' },
     ],
     price: 52.00,

@@ -14,6 +14,7 @@ import { Rating }     from '@/components/ui/Rating'
 import { Badge }      from '@/components/ui/Badge'
 import { Pagination } from '@/components/ui/Pagination'
 import ResetFilters from '@/components/ui/ResetFilters'
+import { Select } from '@/components/ui/Select'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -162,6 +163,11 @@ export default function ProductsPage() {
 
             <div className="flex items-center gap-2">
               {/* Sort */}
+              <Select
+                value={sort}
+                onChange={(v) => { setSort(v as SortOption); setPage(1) }}
+                options={SORT_OPTIONS}
+              />
               <div className="relative">
                 <select
                   value={sort}
