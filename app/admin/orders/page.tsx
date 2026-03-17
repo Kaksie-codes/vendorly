@@ -84,7 +84,7 @@ export default function AdminOrdersPage() {
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="font-serif text-[1.75rem] font-bold text-[#111111]">Orders</h1>
+          <p className="admin-page-title">Orders</p>
           <p className="text-sm text-[#9ca3af] mt-0.5">{mockOrders.length} total platform orders</p>
         </div>
         <button className="inline-flex items-center gap-2 border border-[#e5e5e5] bg-white text-sm font-medium text-[#6b6b6b] px-4 py-2.5 rounded-xl hover:bg-[#f5f5f4] transition-colors">
@@ -102,7 +102,7 @@ export default function AdminOrdersPage() {
         ].map((s) => (
           <div key={s.label} className="bg-white rounded-2xl border border-[#e5e5e5] px-5 py-4">
             <p className="text-xs font-semibold uppercase tracking-wider text-[#9ca3af]">{s.label}</p>
-            <p className={`font-serif text-2xl font-bold mt-1 ${s.color}`}>{s.value}</p>
+            <p className={`font-heading text-2xl font-bold mt-1 ${s.color}`}>{s.value}</p>
           </div>
         ))}
       </div>
@@ -260,6 +260,12 @@ function AdminOrderRow({ order, expanded, onToggle }: {
                 <p className="text-xs text-[#9ca3af]">{order.trackingCarrier}</p>
               </div>
             )}
+            <div className="pt-2 border-t border-[#e5e5e5]">
+              <Link href={`/admin/users/${order.userId}`}
+                className="text-xs font-semibold text-[#ef4444] hover:underline">
+                View customer →
+              </Link>
+            </div>
           </div>
         </div>
       )}

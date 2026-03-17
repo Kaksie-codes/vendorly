@@ -10,24 +10,6 @@
 /* ─────────────────────────────────────────────────────────────────────────────
    VENDORLY — Design System
    Tailwind v4: all tokens defined in @theme, base styles in @layer base
-
-   SINGLE SOURCE OF TRUTH — never use raw hex values in JSX/TSX.
-   Always reference a CSS variable: className="bg-[var(--color-danger-pink)]"
-
-   Token reference:
-     Backgrounds ............. --color-bg-*
-     Text .................... --color-text-*
-     Borders ................. --color-border-*
-     Accent gold ............. --color-accent-gold*
-     Neutrals ................ --color-neutral-*
-     Status: success ......... --color-success*
-     Status: warning ......... --color-warning*
-     Status: error ........... --color-error*
-     Status: danger (pink) ... --color-danger-*
-     Status: info ............ --color-info*
-     Status: purple .......... --color-purple*
-     Admin portal ............ --color-admin-*
-     Vendor portal ........... --color-vendor-*
 ───────────────────────────────────────────────────────────────────────────── */
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -64,56 +46,35 @@
   --color-accent-gold-dark:  #a8892f;
   --color-accent-gold-muted: #f7f1e3;
 
-  /* ── Colors — Neutrals ── */
-  /* Previously hardcoded as #2a2a2a in btn-primary :hover */
-  --color-neutral-hover: #2a2a2a;
-
-  /* ── Colors — Status: Success ── */
+  /* ── Colors — Status ── */
   --color-success:        #16a34a;
   --color-success-bg:     #f0fdf4;
-  --color-success-light:  #dcfce7;   /* was hardcoded in JSX */
   --color-success-border: #bbf7d0;
-  --color-success-dot:    #4ade80;   /* was hardcoded in JSX */
 
-  /* ── Colors — Status: Warning ── */
   --color-warning:        #d97706;
   --color-warning-bg:     #fffbeb;
-  --color-warning-light:  #fef3c7;   /* was hardcoded in JSX */
   --color-warning-border: #fde68a;
-  --color-warning-dot:    #fbbf24;   /* was hardcoded in JSX */
 
-  /* ── Colors — Status: Error ── */
   --color-error:          #dc2626;
   --color-error-bg:       #fef2f2;
-  --color-error-light:    #fee2e2;   /* was hardcoded in JSX */
-  --color-error-mid:      #dc2626;   /* semantic alias */
   --color-error-border:   #fecaca;
-  --color-error-dot:      #f87171;   /* was hardcoded in JSX */
 
-  /* ── Colors — Status: Danger (pink, destructive actions) ── */
-  /* Previously hardcoded — NOT in @theme */
-  --color-danger-pink:       #fecdd3;   /* danger zone badge / border */
-  --color-danger-pink-light: #fff1f2;   /* danger zone section bg */
-
-  /* ── Colors — Status: Info ── */
   --color-info:           #2563eb;
   --color-info-bg:        #eff6ff;
-  --color-info-light:     #dbeafe;   /* was hardcoded in JSX */
   --color-info-border:    #bfdbfe;
-  --color-info-dot:       #60a5fa;   /* was hardcoded in JSX */
 
-  /* ── Colors — Status: Purple ── */
+  /* ── Colors — Status extras (shared across admin + vendor) ── */
   --color-purple:         #7c3aed;
-  --color-purple-bg:      #ede9fe;   /* was hardcoded in JSX */
+  --color-purple-bg:      #ede9fe;
+  --color-success-light:  #dcfce7;
+  --color-warning-light:  #fef3c7;
+  --color-error-light:    #fee2e2;
+  --color-error-mid:      #dc2626;
 
   /* ── Colors — Admin portal ── */
   --color-admin-sidebar:  #0f0f0f;
   --color-admin-accent:   #ef4444;
   --color-admin-bg:       #f5f5f4;
-
-  /* ── Colors — Vendor portal ── */
-  --color-vendor-sidebar: #111111;
-  --color-vendor-accent:  #c8a951;   /* alias of accent-gold */
 
   /* ── Opacity scale — extra steps for sidebar overlays ── */
   --opacity-6:  0.06;
@@ -323,13 +284,24 @@
     color: var(--color-text-primary);
   }
 
-  ::-webkit-scrollbar       { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: var(--color-bg-subtle); }
-  ::-webkit-scrollbar-thumb {
-    background: var(--color-border-medium);
+  ::-webkit-scrollbar       { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track {
+    background: #e5e5e5;
     border-radius: var(--radius-full);
   }
-  ::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
+  ::-webkit-scrollbar-thumb {
+    background: #a0a0a0;
+    border-radius: var(--radius-full);
+    border: 2px solid #e5e5e5;
+  }
+  ::-webkit-scrollbar-thumb:hover  { background: #707070; }
+  ::-webkit-scrollbar-thumb:active { background: #555555; }
+
+  /* Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #a0a0a0 #e5e5e5;
+  }
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -471,7 +443,7 @@
     background-color: var(--color-text-primary);
     color: var(--color-text-inverse);
     border-color: var(--color-text-primary);
-    &:hover { background-color: var(--color-neutral-hover); border-color: var(--color-neutral-hover); }
+    &:hover { background-color: #2a2a2a; border-color: #2a2a2a; }
   }
 
   .btn-gold {
@@ -537,7 +509,7 @@
   .aspect-vendor  { aspect-ratio: 5 / 2;  }
 
   .text-gold-gradient {
-    background: linear-gradient(135deg, var(--color-accent-gold), var(--color-accent-gold-light), var(--color-accent-gold-dark));
+    background: linear-gradient(135deg, #c8a951, #e8d5a3, #a8892f);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
