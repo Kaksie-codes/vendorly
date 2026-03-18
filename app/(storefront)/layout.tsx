@@ -7,6 +7,7 @@ import React from 'react'
 import { Navbar }       from '@/components/layout/Navbar'
 import { Footer }       from '@/components/layout/Footer'
 import { CartProvider } from '@/providers/CartProvider'
+import { AIAssistant }  from '@/components/ui/AIAssistant'
 
 export default function StorefrontLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -15,6 +16,7 @@ export default function StorefrontLayout({ children }: { children: React.ReactNo
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />
+        <AIAssistant />
       </div>
     </CartProvider>
   )

@@ -5,7 +5,7 @@
 
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Link                 from 'next/link'
 import { useRouter }        from 'next/navigation'
 import { getFeaturedCategories } from '@/lib/mock-data'
@@ -58,6 +58,43 @@ export default function NewProductPage() {
   const [tab,    setTab]    = useState<Tab>('basic')
   const [saving, setSaving] = useState(false)
   const [saved,  setSaved]  = useState(false)
+
+  // AI description generator state
+  const [aiOpen,       setAiOpen]       = useState(false)
+  const [aiPrompt,     setAiPrompt]     = useState('')
+  const [aiGenerating, setAiGenerating] = useState(false)
+  const [aiStreamed,   setAiStreamed]    = useState('')
+  const aiIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  const buildAITemplate = (name: string) =>
+    `Introducing the ${name} — a beautifully crafted piece that blends artistry with everyday function.\n\nHandmade by skilled artisans using carefully selected materials, this product reflects a commitment to quality and authenticity. Every detail has been considered to ensure durability without compromising on style.\n\nWhether you're treating yourself or finding the perfect gift, this piece is designed to impress. Each item is unique, carrying the personal touch of the maker.\n\nWhy you'll love it:\n• Handcrafted with premium materials\n• Unique, one-of-a-kind finish\n• Durable and built to last\n• Perfect for gifting or personal use`
+
+  const generateAIDescription = () => {
+    if (!aiPrompt.trim() || aiGenerating) return
+    const name = aiPrompt.trim()
+    const fullText = buildAITemplate(name)
+    setAiGenerating(true)
+    setAiStreamed('')
+    let i = 0
+    aiIntervalRef.current = setInterval(() => {
+      i += 3
+      setAiStreamed(fullText.slice(0, i))
+      if (i >= fullText.length) {
+        clearInterval(aiIntervalRef.current!)
+        setAiGenerating(false)
+      }
+    }, 18)
+  }
+
+  const useAIDescription = () => {
+    const plain = aiStreamed.replace(/\*\*(.*?)\*\*/g, '$1')
+    set('description', plain)
+    setAiOpen(false)
+    setAiStreamed('')
+    setAiPrompt('')
+  }
+
+  useEffect(() => () => { if (aiIntervalRef.current) clearInterval(aiIntervalRef.current) }, [])
 
   const set = (k: keyof FormData, v: unknown) => {
     setForm((f) => {
@@ -180,10 +217,89 @@ export default function NewProductPage() {
               placeholder="One-line summary shown on product cards"
             />
 
+            {/* AI Description Generator */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-[#6b6b6b]">
-                Full Description <span className="text-[#dc2626]">*</span>
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold uppercase tracking-wider text-[#6b6b6b]">
+                  Full Description <span className="text-[#dc2626]">*</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setAiOpen((o) => !o)}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#fef9ec] border border-[#e8d5a3] text-xs font-semibold text-[#c8a951] hover:bg-[#fef3c7] transition-colors"
+                >
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                  </svg>
+                  Generate with AI
+                </button>
+              </div>
+
+              {aiOpen && (
+                <div className="border border-[#e8d5a3] rounded-xl bg-[#fef9ec] p-4 flex flex-col gap-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-lg bg-[#c8a951] flex items-center justify-center shrink-0">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2">
+                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                      </svg>
+                    </div>
+                    <p className="text-xs font-semibold text-[#a8892f]">AI Description Generator</p>
+                  </div>
+                  <p className="text-xs text-[#9ca3af]">
+                    Enter your product name or a brief description and AI will write a compelling listing for you.
+                  </p>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={aiPrompt}
+                      onChange={(e) => setAiPrompt(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && generateAIDescription()}
+                      placeholder="e.g. Handwoven leather journal, A4 size, brown"
+                      className="flex-1 px-3 py-2 text-sm border border-[#e8d5a3] rounded-xl focus:outline-none focus:border-[#c8a951] bg-white transition"
+                    />
+                    <button
+                      type="button"
+                      onClick={generateAIDescription}
+                      disabled={!aiPrompt.trim() || aiGenerating}
+                      className="px-4 py-2 text-sm font-semibold bg-[#c8a951] text-white rounded-xl hover:bg-[#b8993f] disabled:opacity-50 transition-colors flex items-center gap-2 shrink-0"
+                    >
+                      {aiGenerating
+                        ? <svg className="animate-spin" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 00-9-9" strokeLinecap="round"/></svg>
+                        : <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 3l14 9-14 9V3z"/></svg>
+                      }
+                      {aiGenerating ? 'Writing…' : 'Generate'}
+                    </button>
+                  </div>
+
+                  {aiStreamed && (
+                    <div className="flex flex-col gap-2">
+                      <div className="bg-white rounded-xl border border-[#e8d5a3] p-3 text-sm text-[#111111] whitespace-pre-line leading-relaxed max-h-48 overflow-y-auto">
+                        {aiStreamed.replace(/\*\*(.*?)\*\*/g, '$1')}
+                        {aiGenerating && <span className="inline-block w-0.5 h-4 bg-[#c8a951] ml-0.5 animate-pulse align-middle" />}
+                      </div>
+                      {!aiGenerating && (
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={useAIDescription}
+                            className="flex-1 py-2 text-xs font-semibold bg-[#111111] text-white rounded-xl hover:bg-[#2a2a2a] transition-colors"
+                          >
+                            Use this description
+                          </button>
+                          <button
+                            type="button"
+                            onClick={generateAIDescription}
+                            className="px-4 py-2 text-xs font-medium border border-[#e8d5a3] rounded-xl text-[#9ca3af] hover:text-[#c8a951] hover:border-[#c8a951] transition-colors"
+                          >
+                            Regenerate
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
               <textarea
                 value={form.description}
                 onChange={(e) => set('description', e.target.value)}
