@@ -8,6 +8,8 @@
 import React, { useState } from 'react'
 import { useRouter }        from 'next/navigation'
 import { getFeaturedCategories } from '@/lib/mock-data'
+import { Card }                  from '@/components/ui/Card'
+import { FormField, FormTextarea, FormSelect } from '@/components/ui/FormField'
 import type { Product, ProductVariantOption } from '@/types'
 
 type FormData = {
@@ -61,10 +63,10 @@ export function ProductForm({ product }: { product?: Product }) {
   const categories = getFeaturedCategories()
   const isEdit     = !!product
 
-  const [form,    setForm]    = useState<FormData>(toForm(product))
-  const [saving,  setSaving]  = useState(false)
-  const [saved,   setSaved]   = useState(false)
-  const [tab,     setTab]     = useState<'basic' | 'pricing' | 'shipping' | 'variants'>('basic')
+  const [form,   setForm]   = useState<FormData>(toForm(product))
+  const [saving, setSaving] = useState(false)
+  const [saved,  setSaved]  = useState(false)
+  const [tab,    setTab]    = useState<'basic' | 'pricing' | 'shipping' | 'variants'>('basic')
 
   const set = (k: keyof FormData, v: unknown) => {
     setForm((f) => ({ ...f, [k]: v }))
@@ -79,27 +81,19 @@ export function ProductForm({ product }: { product?: Product }) {
     await new Promise((r) => setTimeout(r, 800))
     setSaving(false)
     setSaved(true)
-    setTimeout(() => {
-      setSaved(false)
-      router.push('/vendor/products')
-    }, 1200)
+    setTimeout(() => { setSaved(false); router.push('/vendor/products') }, 1200)
   }
 
-  const addVariantOption = () => {
-    set('variantOptions', [...form.variantOptions, { name: '', values: [] }])
-  }
+  const addVariantOption = () => set('variantOptions', [...form.variantOptions, { name: '', values: [] }])
 
-  const removeVariantOption = (i: number) => {
+  const removeVariantOption = (i: number) =>
     set('variantOptions', form.variantOptions.filter((_, idx) => idx !== i))
-  }
 
   const updateVariantOption = (i: number, key: 'name' | 'values', value: string) => {
     const next = [...form.variantOptions]
-    if (key === 'values') {
-      next[i] = { ...next[i], values: value.split(',').map((s) => s.trim()).filter(Boolean) }
-    } else {
-      next[i] = { ...next[i], name: value }
-    }
+    next[i] = key === 'values'
+      ? { ...next[i], values: value.split(',').map((s) => s.trim()).filter(Boolean) }
+      : { ...next[i], name: value }
     set('variantOptions', next)
   }
 
@@ -134,15 +128,15 @@ export function ProductForm({ product }: { product?: Product }) {
       {/* ── Basic Info ──────────────────────────────────────────────── */}
       {tab === 'basic' && (
         <div className="flex flex-col gap-5">
-          <FormSection title="Product Details">
-            <Field label="Product Name" value={form.name} onChange={(v) => set('name', v)} required />
-            <Field label="URL Slug" value={form.slug} onChange={(v) => set('slug', v)} helper="vendorly.com/products/{slug}" />
-            <Field label="Short Description" value={form.shortDescription} onChange={(v) => set('shortDescription', v)} placeholder="One-line summary shown on cards" />
-            <TextAreaField label="Full Description" value={form.description} onChange={(v) => set('description', v)} rows={6} required />
+          <Card title="Product Details">
+            <FormField label="Product Name" value={form.name} onChange={(v) => set('name', v)} required />
+            <FormField label="URL Slug" value={form.slug} onChange={(v) => set('slug', v)} helper="vendorly.com/products/{slug}" />
+            <FormField label="Short Description" value={form.shortDescription} onChange={(v) => set('shortDescription', v)} placeholder="One-line summary shown on cards" />
+            <FormTextarea label="Full Description" value={form.description} onChange={(v) => set('description', v)} rows={6} required />
 
             <div className="grid sm:grid-cols-2 gap-4">
-              <SelectField label="Category" value={form.categoryId} onChange={(v) => set('categoryId', v)} options={categories.map((c) => ({ value: c.id, label: `${c.icon ?? ''} ${c.name}` }))} />
-              <SelectField label="Condition" value={form.condition} onChange={(v) => set('condition', v as FormData['condition'])} options={[
+              <FormSelect label="Category" value={form.categoryId} onChange={(v) => set('categoryId', v)} options={categories.map((c) => ({ value: c.id, label: `${c.icon ?? ''} ${c.name}` }))} />
+              <FormSelect label="Condition" value={form.condition} onChange={(v) => set('condition', v as FormData['condition'])} options={[
                 { value: 'new',      label: 'New' },
                 { value: 'like_new', label: 'Like New' },
                 { value: 'good',     label: 'Good' },
@@ -150,12 +144,11 @@ export function ProductForm({ product }: { product?: Product }) {
               ]} />
             </div>
 
-            <Field label="Tags" value={form.tags} onChange={(v) => set('tags', v)} placeholder="handmade, leather, gift — comma separated" helper="Helps customers find your product in search" />
-          </FormSection>
+            <FormField label="Tags" value={form.tags} onChange={(v) => set('tags', v)} placeholder="handmade, leather, gift — comma separated" helper="Helps customers find your product in search" />
+          </Card>
 
-          {/* Status & flags */}
-          <FormSection title="Visibility & Flags">
-            <SelectField label="Status" value={form.status} onChange={(v) => set('status', v as FormData['status'])} options={[
+          <Card title="Visibility & Flags">
+            <FormSelect label="Status" value={form.status} onChange={(v) => set('status', v as FormData['status'])} options={[
               { value: 'active',       label: 'Active — visible to customers' },
               { value: 'draft',        label: 'Draft — hidden from store' },
               { value: 'archived',     label: 'Archived' },
@@ -173,10 +166,9 @@ export function ProductForm({ product }: { product?: Product }) {
                 </label>
               ))}
             </div>
-          </FormSection>
+          </Card>
 
-          {/* Images */}
-          <FormSection title="Images">
+          <Card title="Images">
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
               {(product?.images ?? []).map((img, i) => (
                 <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-[#e5e5e5] bg-[#f5f5f4] group">
@@ -191,29 +183,29 @@ export function ProductForm({ product }: { product?: Product }) {
               </label>
             </div>
             <p className="text-xs text-[#9ca3af]">First image is the main product photo. Recommend 800×800px or larger.</p>
-          </FormSection>
+          </Card>
         </div>
       )}
 
       {/* ── Pricing & Stock ──────────────────────────────────────────── */}
       {tab === 'pricing' && (
         <div className="flex flex-col gap-5">
-          <FormSection title="Pricing">
+          <Card title="Pricing">
             <div className="grid sm:grid-cols-2 gap-4">
-              <Field label="Price (₦)" value={form.price} onChange={(v) => set('price', v)} type="number" required placeholder="0.00" />
-              <Field label="Compare-at Price (₦)" value={form.compareAtPrice} onChange={(v) => set('compareAtPrice', v)} type="number" placeholder="Original / strike-through price" />
+              <FormField label="Price (₦)" value={form.price} onChange={(v) => set('price', v)} type="number" required placeholder="0.00" />
+              <FormField label="Compare-at Price (₦)" value={form.compareAtPrice} onChange={(v) => set('compareAtPrice', v)} type="number" placeholder="Original / strike-through price" />
             </div>
             {form.compareAtPrice && Number(form.compareAtPrice) > Number(form.price) && (
               <p className="text-xs text-[#16a34a] font-medium">
                 💰 Sale: {Math.round((1 - Number(form.price) / Number(form.compareAtPrice)) * 100)}% off
               </p>
             )}
-          </FormSection>
+          </Card>
 
-          <FormSection title="Inventory">
+          <Card title="Inventory">
             <div className="grid sm:grid-cols-2 gap-4">
-              <Field label="SKU" value={form.sku} onChange={(v) => set('sku', v)} placeholder="e.g. CC-LJ-001" />
-              <Field label="Stock Quantity" value={form.stock} onChange={(v) => set('stock', v)} type="number" placeholder="0" />
+              <FormField label="SKU" value={form.sku} onChange={(v) => set('sku', v)} placeholder="e.g. CC-LJ-001" />
+              <FormField label="Stock Quantity" value={form.stock} onChange={(v) => set('stock', v)} type="number" placeholder="0" />
             </div>
             {form.stock && Number(form.stock) <= 5 && Number(form.stock) > 0 && (
               <p className="text-xs text-[#d97706] font-medium">⚠️ Low stock warning will show on product page</p>
@@ -221,36 +213,36 @@ export function ProductForm({ product }: { product?: Product }) {
             {form.stock === '0' && (
               <p className="text-xs text-[#dc2626] font-medium">Product will show as out of stock</p>
             )}
-          </FormSection>
+          </Card>
         </div>
       )}
 
       {/* ── Shipping ─────────────────────────────────────────────────── */}
       {tab === 'shipping' && (
         <div className="flex flex-col gap-5">
-          <FormSection title="Physical Details">
+          <Card title="Physical Details">
             <div className="grid sm:grid-cols-2 gap-4">
-              <Field label="Weight (grams)" value={form.weight} onChange={(v) => set('weight', v)} type="number" placeholder="e.g. 500" />
+              <FormField label="Weight (grams)" value={form.weight} onChange={(v) => set('weight', v)} type="number" placeholder="e.g. 500" />
             </div>
-          </FormSection>
-          <FormSection title="Policies">
-            <TextAreaField label="Shipping Info" value={form.shippingInfo} onChange={(v) => set('shippingInfo', v)} rows={3} placeholder="e.g. Ships within 3–5 business days…" />
-            <TextAreaField label="Return Policy" value={form.returnPolicy} onChange={(v) => set('returnPolicy', v)} rows={3} placeholder="Leave blank to use your store default policy" />
-          </FormSection>
+          </Card>
+          <Card title="Policies">
+            <FormTextarea label="Shipping Info" value={form.shippingInfo} onChange={(v) => set('shippingInfo', v)} rows={3} placeholder="e.g. Ships within 3–5 business days…" />
+            <FormTextarea label="Return Policy" value={form.returnPolicy} onChange={(v) => set('returnPolicy', v)} rows={3} placeholder="Leave blank to use your store default policy" />
+          </Card>
         </div>
       )}
 
       {/* ── Variants ─────────────────────────────────────────────────── */}
       {tab === 'variants' && (
         <div className="flex flex-col gap-5">
-          <FormSection title="Variant Options">
+          <Card title="Variant Options">
             <p className="text-sm text-[#9ca3af]">Add options like Size or Color. Each combination becomes a variant with its own price and stock.</p>
             <div className="flex flex-col gap-3">
               {form.variantOptions.map((opt, i) => (
                 <div key={i} className="flex gap-3 items-start p-4 bg-[#fafaf9] rounded-xl border border-[#e5e5e5]">
                   <div className="flex-1 grid sm:grid-cols-2 gap-3">
-                    <Field label="Option Name" value={opt.name} onChange={(v) => updateVariantOption(i, 'name', v)} placeholder="e.g. Size" />
-                    <Field label="Values (comma-separated)" value={opt.values.join(', ')} onChange={(v) => updateVariantOption(i, 'values', v)} placeholder="S, M, L, XL" />
+                    <FormField label="Option Name" value={opt.name} onChange={(v) => updateVariantOption(i, 'name', v)} placeholder="e.g. Size" />
+                    <FormField label="Values (comma-separated)" value={opt.values.join(', ')} onChange={(v) => updateVariantOption(i, 'values', v)} placeholder="S, M, L, XL" />
                   </div>
                   <button onClick={() => removeVariantOption(i)} className="mt-6 w-8 h-8 flex items-center justify-center text-[#9ca3af] hover:text-[#dc2626] rounded-lg hover:bg-[#fee2e2] transition-colors shrink-0">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
@@ -262,7 +254,7 @@ export function ProductForm({ product }: { product?: Product }) {
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               Add Option
             </button>
-          </FormSection>
+          </Card>
         </div>
       )}
 
@@ -288,73 +280,6 @@ export function ProductForm({ product }: { product?: Product }) {
           Cancel
         </button>
       </div>
-    </div>
-  )
-}
-
-// ─── Field helpers ────────────────────────────────────────────────────────────
-
-function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="bg-white rounded-2xl border border-[#e5e5e5] p-5 sm:p-6 flex flex-col gap-4">
-      <h3 className="font-semibold text-[#111111] border-b border-[#f5f5f4] pb-3">{title}</h3>
-      {children}
-    </div>
-  )
-}
-
-function Field({ label, value, onChange, type = 'text', required, placeholder, helper }: {
-  label: string; value: string; onChange: (v: string) => void
-  type?: string; required?: boolean; placeholder?: string; helper?: string
-}) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-semibold uppercase tracking-wider text-[#6b6b6b]">
-        {label}{required && <span className="text-[#dc2626] ml-0.5">*</span>}
-      </label>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="px-3 py-2.5 text-sm border border-[#e5e5e5] rounded-xl focus:outline-none focus:border-[#c8a951] focus:ring-2 focus:ring-[#c8a951]/10 transition bg-white"
-      />
-      {helper && <p className="text-xs text-[#9ca3af]">{helper}</p>}
-    </div>
-  )
-}
-
-function TextAreaField({ label, value, onChange, rows = 4, required, placeholder }: {
-  label: string; value: string; onChange: (v: string) => void
-  rows?: number; required?: boolean; placeholder?: string
-}) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-semibold uppercase tracking-wider text-[#6b6b6b]">
-        {label}{required && <span className="text-[#dc2626] ml-0.5">*</span>}
-      </label>
-      <textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        rows={rows}
-        placeholder={placeholder}
-        className="px-3 py-2.5 text-sm border border-[#e5e5e5] rounded-xl resize-none focus:outline-none focus:border-[#c8a951] transition bg-white"
-      />
-    </div>
-  )
-}
-
-function SelectField({ label, value, onChange, options }: {
-  label: string; value: string; onChange: (v: string) => void
-  options: { value: string; label: string }[]
-}) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-semibold uppercase tracking-wider text-[#6b6b6b]">{label}</label>
-      <select value={value} onChange={(e) => onChange(e.target.value)} className="px-3 py-2.5 text-sm border border-[#e5e5e5] rounded-xl bg-white focus:outline-none focus:border-[#c8a951] transition">
-        <option value="">Select…</option>
-        {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-      </select>
     </div>
   )
 }

@@ -5,13 +5,17 @@
 
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { getVendorById } from '@/lib/mock-data'
+import { useSearchParams } from 'next/navigation'
+import { getVendorById, mockProducts } from '@/lib/mock-data'
+import { Card }     from '@/components/ui/Card'
+import { FormField, FormTextarea, Toggle, SaveBar } from '@/components/ui/FormField'
+import { PricingPlans } from '@/components/vendor/PricingPlans'
 
 const VENDOR_ID = 'vendor-1'
 
-type Tab = 'store' | 'notifications' | 'shipping' | 'security'
+type Tab = 'store' | 'notifications' | 'shipping' | 'security' | 'billing'
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   {
@@ -30,6 +34,10 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
     id: 'security', label: 'Security',
     icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
   },
+  {
+    id: 'billing', label: 'Plan & Billing',
+    icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
+  },
 ]
 
 const NOTIF_OPTIONS = [
@@ -45,7 +53,13 @@ const NOTIF_OPTIONS = [
 
 export default function VendorSettingsPage() {
   const vendor = getVendorById(VENDOR_ID)
-  const [tab,   setTab]   = useState<Tab>('store')
+  const productCount = mockProducts.filter((p) => p.vendorId === VENDOR_ID).length
+
+  const searchParams = useSearchParams()
+  const [tab,   setTab]   = useState<Tab>(() => {
+    const t = searchParams.get('tab')
+    return (TABS.some((x) => x.id === t) ? t : 'store') as Tab
+  })
   const [saved, setSaved] = useState(false)
 
   const save = () => { setSaved(true); setTimeout(() => setSaved(false), 2000) }
@@ -105,6 +119,13 @@ export default function VendorSettingsPage() {
             >
               <span className={tab === t.id ? 'text-white' : 'text-[#9ca3af]'}>{t.icon}</span>
               {t.label}
+              {t.id === 'billing' && vendor?.plan && (
+                <span className={`ml-auto text-[0.6rem] font-bold uppercase px-1.5 py-0.5 rounded-full ${
+                  tab === t.id ? 'bg-white/20 text-white' : 'bg-[#f7f1e3] text-[#a8892f]'
+                }`}>
+                  {vendor.plan}
+                </span>
+              )}
             </button>
           ))}
         </aside>
@@ -151,32 +172,32 @@ export default function VendorSettingsPage() {
                 </div>
 
                 <div className="grid sm:grid-cols-2 gap-4">
-                  <F label="Store Name" value={store.storeName} onChange={sv('storeName')} required span />
-                  <F label="Tagline"    value={store.tagline}   onChange={sv('tagline')}   placeholder="e.g. Handcrafted goods with soul" span />
+                  <FormField label="Store Name" value={store.storeName} onChange={sv('storeName')} required span />
+                  <FormField label="Tagline"    value={store.tagline}   onChange={sv('tagline')}   placeholder="e.g. Handcrafted goods with soul" span />
                 </div>
 
-                <Textarea label="Description" value={store.description} onChange={sv('description')} rows={4} />
+                <FormTextarea label="Description" value={store.description} onChange={sv('description')} rows={4} />
               </Card>
 
               <Card title="Contact Info">
                 <div className="grid sm:grid-cols-2 gap-4">
-                  <F label="Email"   value={store.email}   onChange={sv('email')}   type="email" />
-                  <F label="Phone"   value={store.phone}   onChange={sv('phone')}   type="tel" />
-                  <F label="Website" value={store.website} onChange={sv('website')} type="url" span />
+                  <FormField label="Email"   value={store.email}   onChange={sv('email')}   type="email" />
+                  <FormField label="Phone"   value={store.phone}   onChange={sv('phone')}   type="tel" />
+                  <FormField label="Website" value={store.website} onChange={sv('website')} type="url" span />
                 </div>
               </Card>
 
               <Card title="Social Links">
                 <div className="grid sm:grid-cols-2 gap-4">
-                  <F label="Instagram"   value={store.instagram} onChange={sv('instagram')} placeholder="https://instagram.com/yourstore" />
-                  <F label="Twitter / X" value={store.twitter}   onChange={sv('twitter')}   placeholder="https://x.com/yourstore" />
-                  <F label="Facebook"    value={store.facebook}  onChange={sv('facebook')}  placeholder="https://facebook.com/yourstore" />
+                  <FormField label="Instagram"   value={store.instagram} onChange={sv('instagram')} placeholder="https://instagram.com/yourstore" />
+                  <FormField label="Twitter / X" value={store.twitter}   onChange={sv('twitter')}   placeholder="https://x.com/yourstore" />
+                  <FormField label="Facebook"    value={store.facebook}  onChange={sv('facebook')}  placeholder="https://facebook.com/yourstore" />
                 </div>
               </Card>
 
               <Card title="Policies">
-                <Textarea label="Shipping Policy" value={store.shippingPolicy} onChange={sv('shippingPolicy')} rows={3} placeholder="e.g. Orders ship within 3–5 business days…" />
-                <Textarea label="Return Policy"   value={store.returnPolicy}   onChange={sv('returnPolicy')}   rows={3} placeholder="e.g. Returns accepted within 14 days…" />
+                <FormTextarea label="Shipping Policy" value={store.shippingPolicy} onChange={sv('shippingPolicy')} rows={3} placeholder="e.g. Orders ship within 3–5 business days…" />
+                <FormTextarea label="Return Policy"   value={store.returnPolicy}   onChange={sv('returnPolicy')}   rows={3} placeholder="e.g. Returns accepted within 14 days…" />
               </Card>
 
               <SaveBar saved={saved} onSave={save} />
@@ -227,7 +248,6 @@ export default function VendorSettingsPage() {
                             />
                         }
                       </div>
-                      {/* Price input */}
                       <div className="flex items-center border border-[#e5e5e5] rounded-lg overflow-hidden bg-white shrink-0">
                         <span className="px-2 py-2 text-xs text-[#9ca3af] bg-[#f5f5f4] border-r border-[#e5e5e5] select-none">₦</span>
                         <input
@@ -282,9 +302,9 @@ export default function VendorSettingsPage() {
             <>
               <Card title="Change Password">
                 <div className="flex flex-col gap-4 max-w-xs">
-                  <F label="Current Password" value="" onChange={() => {}} type="password" />
-                  <F label="New Password"      value="" onChange={() => {}} type="password" />
-                  <F label="Confirm Password"  value="" onChange={() => {}} type="password" />
+                  <FormField label="Current Password" value="" onChange={() => {}} type="password" />
+                  <FormField label="New Password"      value="" onChange={() => {}} type="password" />
+                  <FormField label="Confirm Password"  value="" onChange={() => {}} type="password" />
                 </div>
                 <button className="px-5 py-2.5 bg-[#111111] text-white text-sm font-semibold rounded-xl hover:bg-[#2a2a2a] transition-colors active:scale-[0.98]">
                   Update Password
@@ -336,81 +356,17 @@ export default function VendorSettingsPage() {
               </Card>
             </>
           )}
+
+          {/* ════════ BILLING / UPGRADE ════════ */}
+          {tab === 'billing' && (
+            <PricingPlans
+              currentPlan={vendor?.plan}
+              productCount={productCount}
+              renewalDate={undefined}
+            />
+          )}
         </div>
       </div>
-    </div>
-  )
-}
-
-// ─── Field helpers ────────────────────────────────────────────────────────────
-
-function Card({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="bg-white rounded-2xl border border-[#e5e5e5] p-5 sm:p-6 flex flex-col gap-4">
-      <h2 className="font-semibold text-[#111111] text-base pb-3 border-b border-[#f5f5f4]">{title}</h2>
-      {children}
-    </div>
-  )
-}
-
-function F({ label, value, onChange, type = 'text', required, placeholder, span }: {
-  label: string; value: string; onChange: (v: string) => void
-  type?: string; required?: boolean; placeholder?: string; span?: boolean
-}) {
-  return (
-    <div className={`flex flex-col gap-1.5 ${span ? 'sm:col-span-2' : ''}`}>
-      <label className="text-xs font-semibold uppercase tracking-wider text-[#6b6b6b]">
-        {label}{required && <span className="text-[#dc2626] ml-0.5">*</span>}
-      </label>
-      <input
-        type={type}
-        value={value}
-        placeholder={placeholder}
-        onChange={(e) => onChange(e.target.value)}
-        className="px-3 py-2.5 text-sm border border-[#e5e5e5] rounded-xl focus:outline-none focus:border-[#c8a951] focus:ring-2 focus:ring-[#c8a951]/10 transition bg-white"
-      />
-    </div>
-  )
-}
-
-function Textarea({ label, value, onChange, rows = 4, placeholder }: {
-  label: string; value: string; onChange: (v: string) => void; rows?: number; placeholder?: string
-}) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-semibold uppercase tracking-wider text-[#6b6b6b]">{label}</label>
-      <textarea
-        value={value}
-        rows={rows}
-        placeholder={placeholder}
-        onChange={(e) => onChange(e.target.value)}
-        className="px-3 py-2.5 text-sm border border-[#e5e5e5] rounded-xl resize-none focus:outline-none focus:border-[#c8a951] transition bg-white"
-      />
-    </div>
-  )
-}
-
-function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <button
-      onClick={() => onChange(!checked)}
-      className={`relative w-10 h-6 rounded-full transition-colors duration-200 shrink-0 ${checked ? 'bg-[#c8a951]' : 'bg-[#e5e5e5]'}`}
-    >
-      <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${checked ? 'translate-x-[18px]' : 'translate-x-0.5'}`} />
-    </button>
-  )
-}
-
-function SaveBar({ saved, onSave }: { saved: boolean; onSave: () => void }) {
-  return (
-    <div className="flex items-center gap-3">
-      <button
-        onClick={onSave}
-        className={`px-6 py-2.5 text-sm font-semibold rounded-xl transition-all active:scale-[0.98] ${saved ? 'bg-[#16a34a] text-white' : 'bg-[#111111] text-white hover:bg-[#2a2a2a]'}`}
-      >
-        {saved ? '✓ Saved' : 'Save Changes'}
-      </button>
-      {saved && <p className="text-xs text-[#16a34a] font-medium animate-pulse">All changes saved.</p>}
     </div>
   )
 }

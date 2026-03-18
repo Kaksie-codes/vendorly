@@ -10,6 +10,7 @@ import Link   from 'next/link'
 import Image  from 'next/image'
 import { mockVendors, mockVendorAnalytics } from '@/lib/mock-data'
 import type { Vendor, VendorStatus } from '@/types'
+import { Select } from '@/components/ui/Select'
 
 const STATUS_PILL: Record<string, string> = {
   active:    'bg-[#dcfce7] text-[#16a34a]',
@@ -117,20 +118,30 @@ export default function AdminVendorsPage() {
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name or email…"
             className="w-full pl-9 pr-4 py-2 text-sm border border-[#e5e5e5] rounded-xl focus:outline-none focus:border-[#ef4444] bg-white" />
         </div>
-        <select value={plan} onChange={(e) => setPlan(e.target.value)} className="px-3 py-2 text-sm border border-[#e5e5e5] rounded-xl bg-white focus:outline-none text-[#6b6b6b]">
-          <option value="all">All Plans</option>
-          <option value="free">Free</option>
-          <option value="basic">Basic</option>
-          <option value="pro">Pro</option>
-          <option value="enterprise">Enterprise</option>
-        </select>
-        <select value={sort} onChange={(e) => setSort(e.target.value)} className="px-3 py-2 text-sm border border-[#e5e5e5] rounded-xl bg-white focus:outline-none text-[#6b6b6b]">
-          <option value="newest">Newest First</option>
-          <option value="oldest">Oldest First</option>
-          <option value="revenue">Highest Revenue</option>
-          <option value="products">Most Products</option>
-          <option value="rating">Top Rated</option>
-        </select>
+        <Select
+          options={[
+            { value: 'all',        label: 'All Plans' },
+            { value: 'free',       label: 'Free' },
+            { value: 'basic',      label: 'Basic' },
+            { value: 'pro',        label: 'Pro' },
+            { value: 'enterprise', label: 'Enterprise' },
+          ]}
+          value={plan}
+          onChange={(v) => setPlan(v)}
+          size="sm"
+        />
+        <Select
+          options={[
+            { value: 'newest',   label: 'Newest First' },
+            { value: 'oldest',   label: 'Oldest First' },
+            { value: 'revenue',  label: 'Highest Revenue' },
+            { value: 'products', label: 'Most Products' },
+            { value: 'rating',   label: 'Top Rated' },
+          ]}
+          value={sort}
+          onChange={(v) => setSort(v)}
+          size="sm"
+        />
       </div>
 
       {/* Table */}

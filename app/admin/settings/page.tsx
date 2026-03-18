@@ -6,6 +6,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { Select } from '@/components/ui/Select'
 
 type Tab = 'general' | 'plans' | 'fees' | 'notifications' | 'security'
 
@@ -104,21 +105,27 @@ export default function AdminSettingsPage() {
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold uppercase tracking-wider text-[#6b6b6b]">Default Currency</label>
-                    <select value={general.currency} onChange={(e) => setGeneral((s) => ({ ...s, currency: e.target.value }))}
-                      className="px-3 py-2.5 text-sm border border-[#e5e5e5] rounded-xl focus:outline-none focus:border-[#ef4444] bg-white">
-                      <option value="NGN">NGN — Nigerian Naira</option>
-                      <option value="USD">USD — US Dollar</option>
-                      <option value="GBP">GBP — British Pound</option>
-                    </select>
+                    <Select
+                      options={[
+                        { value: 'NGN', label: 'NGN — Nigerian Naira' },
+                        { value: 'USD', label: 'USD — US Dollar' },
+                        { value: 'GBP', label: 'GBP — British Pound' },
+                      ]}
+                      value={general.currency}
+                      onChange={(v) => setGeneral((s) => ({ ...s, currency: v }))}
+                    />
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold uppercase tracking-wider text-[#6b6b6b]">Timezone</label>
-                    <select value={general.timezone} onChange={(e) => setGeneral((s) => ({ ...s, timezone: e.target.value }))}
-                      className="px-3 py-2.5 text-sm border border-[#e5e5e5] rounded-xl focus:outline-none focus:border-[#ef4444] bg-white">
-                      <option value="Africa/Lagos">Africa/Lagos (WAT)</option>
-                      <option value="UTC">UTC</option>
-                      <option value="America/New_York">America/New_York (ET)</option>
-                    </select>
+                    <Select
+                      options={[
+                        { value: 'Africa/Lagos',    label: 'Africa/Lagos (WAT)' },
+                        { value: 'UTC',             label: 'UTC' },
+                        { value: 'America/New_York', label: 'America/New_York (ET)' },
+                      ]}
+                      value={general.timezone}
+                      onChange={(v) => setGeneral((s) => ({ ...s, timezone: v }))}
+                    />
                   </div>
                 </div>
               </Card>
@@ -383,11 +390,16 @@ function F({ label, value, onChange, type = 'text', span, placeholder }: {
 }
 
 function Toggle({ checked, onChange, danger }: { checked: boolean; onChange: (v: boolean) => void; danger?: boolean }) {
-  const activeColor = danger ? 'bg-[#ef4444]' : 'bg-[#111111]'
+  const activeColor = danger ? 'bg-[#ef4444]' : 'bg-[#c8a951]'
   return (
-    <button onClick={() => onChange(!checked)}
-      className={`relative w-10 h-6 rounded-full transition-colors duration-200 shrink-0 ${checked ? activeColor : 'bg-[#e5e5e5]'}`}>
-      <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${checked ? 'translate-x-[18px]' : 'translate-x-0.5'}`} />
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onChange(!checked)}
+      className={`relative w-11 h-6 rounded-full transition-colors duration-200 shrink-0 ${checked ? activeColor : 'bg-[#d1d5db]'}`}
+    >
+      <span className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200 ${checked ? 'translate-x-5' : 'translate-x-0'}`} />
     </button>
   )
 }

@@ -9,12 +9,16 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { mockAdminAnalytics, mockVendors, mockOrders, mockUsers } from '@/lib/mock-data'
-import { AdminChart } from '@/components/admin/AdminChart'
-
-const PERIODS = ['7d', '30d', '90d'] as const
+import { AdminChart }       from '@/components/admin/AdminChart'
+import { StatCard }         from '@/components/vendor/StatCard'
+import { PeriodSelector }   from '@/components/ui/PeriodSelector'
+import { OrderStatusBadge } from '@/components/ui/Badge'
+import type { Period }      from '@/components/ui/PeriodSelector'
+import { formatCurrencyCompact, formatCurrency } from '@/lib/utils/currency'
+import { formatDate }       from '@/lib/utils/date'
 
 export default function AdminDashboardPage() {
-  const [period, setPeriod] = useState<'7d' | '30d' | '90d'>('30d')
+  const [period, setPeriod] = useState<Period>('30d')
   const a = mockAdminAnalytics
 
   const sliceData = period === '7d' ? a.revenueByDay.slice(-7)
@@ -25,51 +29,6 @@ export default function AdminDashboardPage() {
   const recentOrders   = [...mockOrders].sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)).slice(0, 5)
   const newUsers       = [...mockUsers].sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)).slice(0, 4)
 
-  const STATS = [
-    {
-      label: 'Total Revenue',
-      value: `₦${(a.totalRevenue / 1000).toFixed(0)}k`,
-      sub: `Platform fees: ₦${(a.platformFees / 1000).toFixed(1)}k`,
-      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>,
-      iconBg: 'bg-[#dcfce7]', iconColor: 'text-[#16a34a]',
-      trend: '+18.2%', positive: true,
-    },
-    {
-      label: 'Total Orders',
-      value: a.totalOrders.toLocaleString(),
-      sub: `${a.totalVendors} active vendors`,
-      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>,
-      iconBg: 'bg-[#dbeafe]', iconColor: 'text-[#2563eb]',
-      trend: '+12.4%', positive: true,
-    },
-    {
-      label: 'Total Users',
-      value: a.totalUsers.toLocaleString(),
-      sub: `+${a.newUsers} this month`,
-      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>,
-      iconBg: 'bg-[#ede9fe]', iconColor: 'text-[#7c3aed]',
-      trend: '+8.7%', positive: true,
-    },
-    {
-      label: 'Active Products',
-      value: a.activeProducts.toLocaleString(),
-      sub: `${a.newVendors} new vendors`,
-      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>,
-      iconBg: 'bg-[#fef3c7]', iconColor: 'text-[#d97706]',
-      trend: '+5.1%', positive: true,
-    },
-  ]
-
-  const STATUS_PILL: Record<string, string> = {
-    pending:          'bg-[#fef3c7] text-[#d97706]',
-    confirmed:        'bg-[#dbeafe] text-[#2563eb]',
-    processing:       'bg-[#dbeafe] text-[#2563eb]',
-    shipped:          'bg-[#ede9fe] text-[#7c3aed]',
-    out_for_delivery: 'bg-[#ede9fe] text-[#7c3aed]',
-    delivered:        'bg-[#dcfce7] text-[#16a34a]',
-    cancelled:        'bg-[#fee2e2] text-[#dc2626]',
-  }
-
   return (
     <div className="p-6 lg:p-8 max-w-[1400px]">
 
@@ -79,34 +38,51 @@ export default function AdminDashboardPage() {
           <h1 className="font-serif text-[1.75rem] font-bold text-[#111111] leading-tight">Platform Overview</h1>
           <p className="text-sm text-[#9ca3af] mt-0.5">All metrics across the entire Vendorly platform</p>
         </div>
-        <div className="flex gap-1 p-1 bg-white border border-[#e5e5e5] rounded-xl">
-          {PERIODS.map((p) => (
-            <button
-              key={p}
-              onClick={() => setPeriod(p)}
-              className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-all ${period === p ? 'bg-[#111111] text-white' : 'text-[#9ca3af] hover:text-[#6b6b6b]'}`}
-            >
-              {p}
-            </button>
-          ))}
-        </div>
+        <PeriodSelector value={period} onChange={setPeriod} />
       </div>
 
       {/* ── Stat cards ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
-        {STATS.map((s) => (
-          <div key={s.label} className="bg-white rounded-2xl border border-[#e5e5e5] p-5">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-semibold uppercase tracking-wider text-[#9ca3af]">{s.label}</p>
-              <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${s.iconBg} ${s.iconColor}`}>{s.icon}</div>
-            </div>
-            <p className="font-serif text-2xl font-bold text-[#111111]">{s.value}</p>
-            <div className="flex items-center gap-2 mt-1.5">
-              <span className={`text-xs font-semibold ${s.positive ? 'text-[#16a34a]' : 'text-[#dc2626]'}`}>{s.trend}</span>
-              <span className="text-xs text-[#9ca3af]">{s.sub}</span>
-            </div>
-          </div>
-        ))}
+        <StatCard
+          label="Total Revenue"
+          value={formatCurrencyCompact(a.totalRevenue)}
+          change="+18.2%"
+          positive
+          sub={`Platform fees: ${formatCurrencyCompact(a.platformFees)}`}
+          iconBg="bg-[#dcfce7]"
+          iconColor="text-[#16a34a]"
+          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>}
+        />
+        <StatCard
+          label="Total Orders"
+          value={a.totalOrders.toLocaleString()}
+          change="+12.4%"
+          positive
+          sub={`${a.totalVendors} active vendors`}
+          iconBg="bg-[#dbeafe]"
+          iconColor="text-[#2563eb]"
+          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>}
+        />
+        <StatCard
+          label="Total Users"
+          value={a.totalUsers.toLocaleString()}
+          change="+8.7%"
+          positive
+          sub={`+${a.newUsers} this month`}
+          iconBg="bg-[#ede9fe]"
+          iconColor="text-[#7c3aed]"
+          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>}
+        />
+        <StatCard
+          label="Active Products"
+          value={a.activeProducts.toLocaleString()}
+          change="+5.1%"
+          positive
+          sub={`${a.newVendors} new vendors`}
+          iconBg="bg-[#fef3c7]"
+          iconColor="text-[#d97706]"
+          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>}
+        />
       </div>
 
       {/* ── Revenue chart ── */}
@@ -115,7 +91,7 @@ export default function AdminDashboardPage() {
           <div>
             <h2 className="font-semibold text-[#111111]">Platform Revenue</h2>
             <p className="text-xs text-[#9ca3af] mt-0.5">
-              ₦{sliceData.reduce((s, d) => s + d.revenue, 0).toLocaleString()} ·{' '}
+              {formatCurrency(sliceData.reduce((s, d) => s + d.revenue, 0))} ·{' '}
               {sliceData.reduce((s, d) => s + d.orders, 0).toLocaleString()} orders
             </p>
           </div>
@@ -149,7 +125,7 @@ export default function AdminDashboardPage() {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-[#111111] truncate">{v.storeName}</p>
                     </div>
-                    <span className="text-sm font-semibold text-[#111111] shrink-0">₦{(v.revenue / 1000).toFixed(0)}k</span>
+                    <span className="text-sm font-semibold text-[#111111] shrink-0">{formatCurrencyCompact(v.revenue)}</span>
                   </div>
                   <div className="ml-7 h-1.5 bg-[#f5f5f4] rounded-full overflow-hidden">
                     <div className="h-full bg-[#ef4444] rounded-full" style={{ width: `${(v.revenue / maxRev) * 100}%` }} />
@@ -175,7 +151,7 @@ export default function AdminDashboardPage() {
                     <span className="text-xs text-[#9ca3af] w-4 shrink-0">{i + 1}</span>
                     <p className="flex-1 text-sm font-medium text-[#111111] truncate">{cat.name}</p>
                     <span className="text-xs text-[#9ca3af]">{cat.orders} orders</span>
-                    <span className="text-sm font-semibold text-[#111111] w-16 text-right">₦{(cat.revenue / 1000).toFixed(0)}k</span>
+                    <span className="text-sm font-semibold text-[#111111] w-16 text-right">{formatCurrencyCompact(cat.revenue)}</span>
                   </div>
                   <div className="ml-6 h-1.5 bg-[#f5f5f4] rounded-full overflow-hidden">
                     <div className="h-full bg-[#c8a951] rounded-full" style={{ width: `${(cat.revenue / maxRev) * 100}%` }} />
@@ -189,7 +165,6 @@ export default function AdminDashboardPage() {
         {/* Right column: pending vendors + recent orders */}
         <div className="flex flex-col gap-5">
 
-          {/* Pending vendor approvals */}
           {pendingVendors.length > 0 && (
             <div className="bg-[#fff7ed] border border-[#fed7aa] rounded-2xl p-5">
               <div className="flex items-center justify-between mb-3">
@@ -207,7 +182,7 @@ export default function AdminDashboardPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-[#111111] truncate">{v.storeName}</p>
-                      <p className="text-xs text-[#9ca3af]">{v.plan} plan · {new Date(v.joinedAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' })}</p>
+                      <p className="text-xs text-[#9ca3af]">{v.plan} plan · {formatDate(v.joinedAt)}</p>
                     </div>
                     <Link href={`/admin/vendors/${v.id}`} className="px-3 py-1.5 text-xs font-semibold bg-[#111111] text-white rounded-lg hover:bg-[#333] transition-colors whitespace-nowrap">
                       Review
@@ -218,7 +193,6 @@ export default function AdminDashboardPage() {
             </div>
           )}
 
-          {/* Recent orders */}
           <div className="bg-white rounded-2xl border border-[#e5e5e5] p-5 flex-1">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-[#111111]">Recent Orders</h2>
@@ -233,11 +207,9 @@ export default function AdminDashboardPage() {
                       {order.customer?.firstName} {order.customer?.lastName}
                     </p>
                   </div>
-                  <span className={`text-[0.6rem] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full ${STATUS_PILL[order.status] ?? 'bg-[#f5f5f4] text-[#6b6b6b]'}`}>
-                    {order.status.replace(/_/g, ' ')}
-                  </span>
+                  <OrderStatusBadge status={order.status} />
                   <span className="text-sm font-semibold text-[#111111] w-20 text-right shrink-0">
-                    ₦{order.total.toLocaleString()}
+                    {formatCurrency(order.total)}
                   </span>
                 </div>
               ))}

@@ -10,6 +10,7 @@ import Link  from 'next/link'
 import Image from 'next/image'
 import { getReviewsByVendor, getAverageRating } from '@/lib/mock-data'
 import type { Review } from '@/types'
+import { Select } from '@/components/ui/Select'
 
 const VENDOR_ID = 'vendor-1'
 
@@ -113,12 +114,18 @@ export default function VendorReviewsPage() {
           ))}
         </div>
 
-        <select value={sort} onChange={(e) => setSort(e.target.value as typeof sort)} className="ml-auto px-3 py-2 text-sm border border-[#e5e5e5] rounded-xl bg-white focus:outline-none focus:border-[#c8a951]">
-          <option value="newest">Newest</option>
-          <option value="highest">Highest Rated</option>
-          <option value="lowest">Lowest Rated</option>
-          <option value="helpful">Most Helpful</option>
-        </select>
+        <Select
+          options={[
+            { value: 'newest',  label: 'Newest' },
+            { value: 'highest', label: 'Highest Rated' },
+            { value: 'lowest',  label: 'Lowest Rated' },
+            { value: 'helpful', label: 'Most Helpful' },
+          ]}
+          value={sort}
+          onChange={(v) => setSort(v as typeof sort)}
+          className="ml-auto"
+          size="sm"
+        />
       </div>
 
       {/* Review list */}

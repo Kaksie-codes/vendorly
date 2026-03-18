@@ -6,6 +6,7 @@
 import React from 'react'
 import Link  from 'next/link'
 import { mockVendors, mockProducts } from '@/lib/mock-data'
+import { Breadcrumb } from '@/components/ui/Container'
 
 const STATS = [
   { value: '2,400+', label: 'Active Sellers' },
@@ -34,6 +35,11 @@ export default function AboutPage() {
 
   return (
     <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+
+      {/* Breadcrumb */}
+      <div className="pt-8">
+        <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'About' }]} />
+      </div>
 
       {/* Hero */}
       <section className="py-20 sm:py-28 text-center max-w-3xl mx-auto">

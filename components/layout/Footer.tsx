@@ -31,7 +31,7 @@ const footerLinks = {
     { label: 'FAQ',               href: '/help/faq' },
     { label: 'Shipping Policy',   href: '/help/shipping' },
     { label: 'Returns',           href: '/help/returns' },
-    { label: 'Contact Us',        href: '/help/contact' },
+    { label: 'Contact Us',        href: '/contact' },
     { label: 'Track Order',       href: '/help/track' },
   ],
 }
@@ -161,10 +161,14 @@ export function Footer() {
             © {new Date().getFullYear()} Vendorly. All rights reserved.
           </p>
           <div className="flex items-center gap-5">
-            {['Privacy Policy', 'Terms of Service', 'Cookie Policy'].map((label) => (
+            {[
+              { label: 'Privacy Policy', href: '/privacy-policy' },
+              { label: 'Terms of Service', href: '/terms' },
+              { label: 'Cookie Policy', href: '/privacy-policy#cookies' },
+            ].map(({ label, href }) => (
               <Link
                 key={label}
-                href={`/legal/${label.toLowerCase().replace(/\s+/g, '-')}`}
+                href={href}
                 className="text-xs text-white/40 hover:text-white/70 transition-colors"
               >
                 {label}

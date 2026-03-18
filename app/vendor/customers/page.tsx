@@ -10,6 +10,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { getOrdersByVendor, getUserById } from '@/lib/mock-data'
 import type { Order } from '@/types'
+import { Select } from '@/components/ui/Select'
 
 const VENDOR_ID = 'vendor-1'
 
@@ -395,12 +396,16 @@ export default function VendorCustomersPage() {
             className="w-full pl-9 pr-4 py-2.5 text-sm border border-[#e5e5e5] rounded-xl outline-none focus:border-[#c8a951] transition-all bg-white"/>
         </div>
         {/* Sort */}
-        <select value={sort} onChange={(e) => setSort(e.target.value as SortKey)}
-          className="px-3.5 py-2.5 text-sm border border-[#e5e5e5] rounded-xl outline-none focus:border-[#c8a951] bg-white text-[#111111] cursor-pointer">
-          <option value="spent">Highest spend</option>
-          <option value="orders">Most orders</option>
-          <option value="recent">Most recent</option>
-        </select>
+        <Select
+          options={[
+            { value: 'spent',  label: 'Highest spend' },
+            { value: 'orders', label: 'Most orders' },
+            { value: 'recent', label: 'Most recent' },
+          ]}
+          value={sort}
+          onChange={(v) => setSort(v as SortKey)}
+          size="sm"
+        />
       </div>
 
       {/* ── Customer list ── */}

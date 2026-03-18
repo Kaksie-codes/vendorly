@@ -7,6 +7,8 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
+import { Select } from '@/components/ui/Select'
+import { Breadcrumb } from '@/components/ui/Container'
 
 const TOPICS = [
   'Order issue', 'Return or refund', 'Product question',
@@ -40,6 +42,9 @@ export default function ContactPage() {
 
   return (
     <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+      {/* Breadcrumb */}
+      <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Contact Us' }]} className="mb-8" />
 
       {/* Header */}
       <div className="text-center mb-14">
@@ -92,10 +97,12 @@ export default function ContactPage() {
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-semibold uppercase tracking-wider text-[#6b6b6b]">Topic</label>
-                <select value={form.topic} onChange={(e) => update('topic', e.target.value)} className="px-4 py-3 text-sm border border-[#e5e5e5] rounded-xl bg-white focus:outline-none focus:border-[#c8a951] transition">
-                  <option value="">Select a topic…</option>
-                  {TOPICS.map((t) => <option key={t} value={t}>{t}</option>)}
-                </select>
+                <Select
+                  options={TOPICS.map((t) => ({ value: t, label: t }))}
+                  value={form.topic}
+                  onChange={(v) => update('topic', v)}
+                  placeholder="Select a topic…"
+                />
               </div>
 
               <div className="flex flex-col gap-1.5">

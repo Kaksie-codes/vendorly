@@ -76,7 +76,7 @@ export type Customer = User & {
 
 export type VendorStatus = 'active' | 'pending' | 'suspended' | 'rejected'
 
-export type VendorPlan = 'free' | 'basic' | 'pro' | 'enterprise'
+export type VendorPlan = 'free' | 'starter' | 'growth'
 
 export type Vendor = {
   id: ID

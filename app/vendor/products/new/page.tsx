@@ -10,6 +10,7 @@ import Link                 from 'next/link'
 import { useRouter }        from 'next/navigation'
 import { getFeaturedCategories } from '@/lib/mock-data'
 import type { ProductVariantOption } from '@/types'
+import { Select } from '@/components/ui/Select'
 
 type FormData = {
   name:             string
@@ -196,27 +197,25 @@ export default function NewProductPage() {
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-semibold uppercase tracking-wider text-[#6b6b6b]">Category</label>
-                <select
+                <Select
+                  options={categories.map((c) => ({ value: c.id, label: `${c.icon} ${c.name}` }))}
                   value={form.categoryId}
-                  onChange={(e) => set('categoryId', e.target.value)}
-                  className="px-3 py-2.5 text-sm border border-[#e5e5e5] rounded-xl bg-white focus:outline-none focus:border-[#c8a951] transition"
-                >
-                  <option value="">Select category…</option>
-                  {categories.map((c) => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
-                </select>
+                  onChange={(v) => set('categoryId', v)}
+                  placeholder="Select category…"
+                />
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-semibold uppercase tracking-wider text-[#6b6b6b]">Condition</label>
-                <select
+                <Select
+                  options={[
+                    { value: 'new',      label: 'New' },
+                    { value: 'like_new', label: 'Like New' },
+                    { value: 'good',     label: 'Good' },
+                    { value: 'fair',     label: 'Fair' },
+                  ]}
                   value={form.condition}
-                  onChange={(e) => set('condition', e.target.value as FormData['condition'])}
-                  className="px-3 py-2.5 text-sm border border-[#e5e5e5] rounded-xl bg-white focus:outline-none focus:border-[#c8a951] transition"
-                >
-                  <option value="new">New</option>
-                  <option value="like_new">Like New</option>
-                  <option value="good">Good</option>
-                  <option value="fair">Fair</option>
-                </select>
+                  onChange={(v) => set('condition', v as FormData['condition'])}
+                />
               </div>
             </div>
 
@@ -259,16 +258,17 @@ export default function NewProductPage() {
           <Section title="Visibility & Badges">
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-semibold uppercase tracking-wider text-[#6b6b6b]">Status</label>
-              <select
+              <Select
+                options={[
+                  { value: 'draft',        label: 'Draft — hidden from store' },
+                  { value: 'active',       label: 'Active — visible to customers' },
+                  { value: 'out_of_stock', label: 'Out of Stock' },
+                  { value: 'archived',     label: 'Archived' },
+                ]}
                 value={form.status}
-                onChange={(e) => set('status', e.target.value as FormData['status'])}
-                className="px-3 py-2.5 text-sm border border-[#e5e5e5] rounded-xl bg-white focus:outline-none focus:border-[#c8a951] transition max-w-xs"
-              >
-                <option value="draft">Draft — hidden from store</option>
-                <option value="active">Active — visible to customers</option>
-                <option value="out_of_stock">Out of Stock</option>
-                <option value="archived">Archived</option>
-              </select>
+                onChange={(v) => set('status', v as FormData['status'])}
+                className="max-w-xs"
+              />
             </div>
             <div className="flex flex-wrap gap-6 pt-1">
               {([

@@ -7,8 +7,10 @@
 
 import React, { useState, useMemo } from 'react'
 import Image from 'next/image'
+import Link  from 'next/link'
 import { getOrdersByVendor } from '@/lib/mock-data'
 import type { Order, OrderStatus } from '@/types'
+import { Select } from '@/components/ui/Select'
 
 const VENDOR_ID = 'vendor-1'
 
@@ -170,12 +172,17 @@ export default function VendorOrdersPage() {
             className="w-full pl-9 pr-4 py-2 text-sm border border-[#e5e5e5] rounded-xl focus:outline-none focus:border-[#c8a951] bg-white"
           />
         </div>
-        <select value={sort} onChange={(e) => setSort(e.target.value)} className="px-3 py-2 text-sm border border-[#e5e5e5] rounded-xl bg-white focus:outline-none focus:border-[#c8a951] text-[#6b6b6b]">
-          <option value="newest">Newest</option>
-          <option value="oldest">Oldest</option>
-          <option value="highest">Highest Value</option>
-          <option value="lowest">Lowest Value</option>
-        </select>
+        <Select
+          options={[
+            { value: 'newest',  label: 'Newest' },
+            { value: 'oldest',  label: 'Oldest' },
+            { value: 'highest', label: 'Highest Value' },
+            { value: 'lowest',  label: 'Lowest Value' },
+          ]}
+          value={sort}
+          onChange={(v) => setSort(v)}
+          size="sm"
+        />
       </div>
 
       {/* ── Table ── */}
@@ -315,6 +322,13 @@ function OrderRow({ order, status, onAdvance, expanded, onToggle }: {
                 <span className="text-sm font-medium text-[#111111] w-24 text-right">₦{item.totalPrice.toLocaleString()}</span>
               </div>
             ))}
+          </div>
+
+          {/* View full details link */}
+          <div className="flex justify-end">
+            <Link href={`/vendor/orders/${order.id}`} className="text-xs font-semibold text-[#c8a951] hover:underline">
+              View full order details →
+            </Link>
           </div>
 
           {/* Address + tracking */}

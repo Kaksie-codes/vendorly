@@ -10,6 +10,7 @@ import Image from 'next/image'
 import Link  from 'next/link'
 import { mockProducts, mockVendors, getFeaturedCategories } from '@/lib/mock-data'
 import type { Product, ProductStatus } from '@/types'
+import { Select } from '@/components/ui/Select'
 
 const STATUS_PILL: Record<ProductStatus, string> = {
   active:       'bg-[#dcfce7] text-[#16a34a]',
@@ -114,22 +115,31 @@ export default function AdminProductsPage() {
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name or SKU…"
             className="w-full pl-9 pr-4 py-2 text-sm border border-[#e5e5e5] rounded-xl focus:outline-none focus:border-[#ef4444] bg-white" />
         </div>
-        <select value={vendor} onChange={(e) => setVendor(e.target.value)} className="px-3 py-2 text-sm border border-[#e5e5e5] rounded-xl bg-white focus:outline-none text-[#6b6b6b]">
-          <option value="all">All Vendors</option>
-          {mockVendors.map((v) => <option key={v.id} value={v.id}>{v.storeName}</option>)}
-        </select>
-        <select value={category} onChange={(e) => setCategory(e.target.value)} className="px-3 py-2 text-sm border border-[#e5e5e5] rounded-xl bg-white focus:outline-none text-[#6b6b6b]">
-          <option value="all">All Categories</option>
-          {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-        </select>
-        <select value={sort} onChange={(e) => setSort(e.target.value)} className="px-3 py-2 text-sm border border-[#e5e5e5] rounded-xl bg-white focus:outline-none text-[#6b6b6b]">
-          <option value="newest">Newest</option>
-          <option value="oldest">Oldest</option>
-          <option value="price_hi">Price High–Low</option>
-          <option value="price_lo">Price Low–High</option>
-          <option value="bestseller">Best Selling</option>
-          <option value="rating">Top Rated</option>
-        </select>
+        <Select
+          options={[{ value: 'all', label: 'All Vendors' }, ...mockVendors.map((v) => ({ value: v.id, label: v.storeName }))]}
+          value={vendor}
+          onChange={(v) => setVendor(v)}
+          size="sm"
+        />
+        <Select
+          options={[{ value: 'all', label: 'All Categories' }, ...categories.map((c) => ({ value: c.id, label: c.name }))]}
+          value={category}
+          onChange={(v) => setCategory(v)}
+          size="sm"
+        />
+        <Select
+          options={[
+            { value: 'newest',     label: 'Newest' },
+            { value: 'oldest',     label: 'Oldest' },
+            { value: 'price_hi',   label: 'Price High–Low' },
+            { value: 'price_lo',   label: 'Price Low–High' },
+            { value: 'bestseller', label: 'Best Selling' },
+            { value: 'rating',     label: 'Top Rated' },
+          ]}
+          value={sort}
+          onChange={(v) => setSort(v)}
+          size="sm"
+        />
       </div>
 
       {/* Table */}

@@ -8,6 +8,7 @@
 import React, { useState, useMemo } from 'react'
 import { mockCoupons, getVendorById } from '@/lib/mock-data'
 import type { Coupon } from '@/types'
+import { Select } from '@/components/ui/Select'
 
 type FilterTab = 'all' | 'active' | 'expired' | 'platform' | 'vendor'
 
@@ -364,14 +365,15 @@ export default function AdminCouponsPage() {
                 </div>
                 <div>
                   <label className={labelCls}>Discount Type</label>
-                  <select
+                  <Select
+                    options={[
+                      { value: 'percentage',   label: 'Percentage (% off)' },
+                      { value: 'fixed_amount', label: 'Fixed Amount (₦ off)' },
+                      { value: 'free_shipping',label: 'Free Shipping' },
+                    ]}
                     value={form.type ?? 'percentage'}
-                    onChange={(e) => setForm((f) => ({ ...f, type: e.target.value as Coupon['type'] }))}
-                    className={inputCls}>
-                    <option value="percentage">Percentage (% off)</option>
-                    <option value="fixed_amount">Fixed Amount (₦ off)</option>
-                    <option value="free_shipping">Free Shipping</option>
-                  </select>
+                    onChange={(v) => setForm((f) => ({ ...f, type: v as Coupon['type'] }))}
+                  />
                 </div>
               </div>
 

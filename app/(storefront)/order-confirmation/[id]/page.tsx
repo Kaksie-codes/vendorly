@@ -10,6 +10,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { use } from 'react'
 import { getOrderByNumber, getOrderById } from '@/lib/mock-data'
+import { Breadcrumb } from '@/components/ui/Container'
 
 const STATUS_STEPS = ['confirmed', 'processing', 'shipped', 'delivered']
 
@@ -31,6 +32,9 @@ export default function OrderConfirmationPage({ params }: { params: Promise<{ id
   return (
     <div className="min-h-screen bg-[#fafaf9]">
       <div className="max-w-[680px] mx-auto px-4 sm:px-6 py-12 sm:py-16">
+
+        {/* Breadcrumb */}
+        <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Orders', href: '/account?tab=orders' }, { label: order.orderNumber }]} className="mb-8" />
 
         {/* ── Success header ── */}
         <div className="text-center mb-10">

@@ -10,6 +10,7 @@ import Link  from 'next/link'
 import Image from 'next/image'
 import { mockUsers, mockCustomers } from '@/lib/mock-data'
 import type { User, UserStatus } from '@/types'
+import { Select } from '@/components/ui/Select'
 
 const STATUS_PILL: Record<UserStatus, string> = {
   active:               'bg-[#dcfce7] text-[#16a34a]',
@@ -122,17 +123,27 @@ export default function AdminUsersPage() {
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name or email…"
             className="w-full pl-9 pr-4 py-2 text-sm border border-[#e5e5e5] rounded-xl focus:outline-none focus:border-[#ef4444] bg-white" />
         </div>
-        <select value={role} onChange={(e) => setRole(e.target.value)} className="px-3 py-2 text-sm border border-[#e5e5e5] rounded-xl bg-white focus:outline-none text-[#6b6b6b]">
-          <option value="all">All Roles</option>
-          <option value="customer">Customers</option>
-          <option value="vendor">Vendors</option>
-          <option value="admin">Admins</option>
-        </select>
-        <select value={sort} onChange={(e) => setSort(e.target.value)} className="px-3 py-2 text-sm border border-[#e5e5e5] rounded-xl bg-white focus:outline-none text-[#6b6b6b]">
-          <option value="newest">Newest First</option>
-          <option value="oldest">Oldest First</option>
-          <option value="name">Name A–Z</option>
-        </select>
+        <Select
+          options={[
+            { value: 'all',      label: 'All Roles' },
+            { value: 'customer', label: 'Customers' },
+            { value: 'vendor',   label: 'Vendors' },
+            { value: 'admin',    label: 'Admins' },
+          ]}
+          value={role}
+          onChange={(v) => setRole(v)}
+          size="sm"
+        />
+        <Select
+          options={[
+            { value: 'newest', label: 'Newest First' },
+            { value: 'oldest', label: 'Oldest First' },
+            { value: 'name',   label: 'Name A–Z' },
+          ]}
+          value={sort}
+          onChange={(v) => setSort(v)}
+          size="sm"
+        />
       </div>
 
       {/* Table */}

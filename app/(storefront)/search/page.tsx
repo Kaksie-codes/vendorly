@@ -13,6 +13,7 @@ import { ProductCard } from '@/components/storefront/ProductCard'
 import { Rating }      from '@/components/ui/Rating'
 import Link            from 'next/link'
 import Image           from 'next/image'
+import { Select }      from '@/components/ui/Select'
 
 const SORT_OPTIONS = [
   { value: 'relevance',  label: 'Most Relevant' },
@@ -186,13 +187,13 @@ export default function SearchPage() {
           {/* Sort bar */}
           <div className="flex items-center justify-between mb-5">
             <p className="text-sm text-[#9ca3af] hidden sm:block">{filtered.length} results</p>
-            <select
+            <Select
+              options={SORT_OPTIONS}
               value={sort}
-              onChange={(e) => setSort(e.target.value)}
-              className="ml-auto px-3 py-2 text-sm border border-[#e5e5e5] rounded-xl bg-white focus:outline-none focus:border-[#c8a951]"
-            >
-              {SORT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-            </select>
+              onChange={(v) => setSort(v)}
+              className="ml-auto"
+              size="sm"
+            />
           </div>
 
           {/* Active filter chips — mobile */}

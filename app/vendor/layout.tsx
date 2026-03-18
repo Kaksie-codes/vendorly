@@ -80,10 +80,10 @@ export default function VendorLayout({ children }: { children: React.ReactNode }
     href === '/vendor/dashboard' ? pathname === href : pathname.startsWith(href)
 
   return (
-    <div className="flex min-h-screen bg-[#fafaf9]">
+    <div className="flex h-screen overflow-hidden bg-[#fafaf9]">
 
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex flex-col w-60 shrink-0 bg-[#111111] min-h-screen sticky top-0 h-screen">
+      <aside className="hidden lg:flex flex-col w-60 shrink-0 bg-[#111111]">
         <Sidebar isActive={isActive} />
       </aside>
 
@@ -114,7 +114,7 @@ export default function VendorLayout({ children }: { children: React.ReactNode }
       </div>
 
       {/* Main */}
-      <main className="flex-1 min-w-0 lg:pt-0 pt-14">
+      <main className="flex-1 min-w-0 overflow-y-auto lg:pt-0 pt-14">
         {children}
       </main>
 

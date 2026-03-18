@@ -1,129 +1,102 @@
 // -----------------------------------------------------------------------------
 // File: AdminChart.tsx
 // Path: components/admin/AdminChart.tsx
+// Uses Recharts — consistent with analytics pages.
 // -----------------------------------------------------------------------------
 
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from 'recharts'
 
 interface DataPoint {
-  date: string
+  date:    string
   revenue: number
-  orders: number
+  orders:  number
 }
 
 interface AdminChartProps {
-  data: DataPoint[]
+  data:    DataPoint[]
   height?: number
 }
 
-export function AdminChart({ data, height = 200 }: AdminChartProps) {
-  const [hovered, setHovered] = useState<number | null>(null)
+const fmtDate = (d: string) =>
+  new Date(d).toLocaleDateString('en', { month: 'short', day: 'numeric' })
 
+const fmtNaira = (v: number) =>
+  v >= 1000 ? `₦${(v / 1000).toFixed(0)}k` : `₦${v}`
+
+const TooltipStyle = {
+  contentStyle: {
+    background: '#fff',
+    border: '1px solid #e5e5e5',
+    borderRadius: '12px',
+    fontSize: '12px',
+    boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+    padding: '10px 14px',
+  },
+  labelStyle: { color: '#9ca3af', marginBottom: 4, fontSize: 11 },
+}
+
+export function AdminChart({ data, height = 200 }: AdminChartProps) {
   if (!data || data.length === 0) return null
 
-  const W = 640
-  const H = height
-  const PAD = { top: 16, right: 16, bottom: 28, left: 52 }
-  const chartW = W - PAD.left - PAD.right
-  const chartH = H - PAD.top - PAD.bottom
-
-  const maxRev = Math.max(...data.map((d) => d.revenue))
-  const yMax   = Math.ceil(maxRev / 1000) * 1000 || 1000
-
-  const px = (i: number) => PAD.left + (i / (data.length - 1)) * chartW
-  const py = (v: number) => PAD.top + chartH - (v / yMax) * chartH
-
-  const linePath = data.map((d, i) => `${i === 0 ? 'M' : 'L'}${px(i)},${py(d.revenue)}`).join(' ')
-  const areaPath = `${linePath} L${px(data.length - 1)},${PAD.top + chartH} L${px(0)},${PAD.top + chartH} Z`
-
-  const yTicks = [0, 0.25, 0.5, 0.75, 1].map((t) => yMax * t)
-  const xStep  = Math.ceil(data.length / 6)
-
-  const fmt = (v: number) => v >= 1000 ? `₦${(v / 1000).toFixed(0)}k` : `₦${v}`
-  const fmtDate = (s: string) => {
-    const d = new Date(s)
-    return d.toLocaleDateString('en-NG', { day: 'numeric', month: 'short' })
-  }
-
   return (
-    <div className="relative w-full" style={{ paddingBottom: `${(H / W) * 100}%` }}>
-      <svg
-        className="absolute inset-0 w-full h-full"
-        viewBox={`0 0 ${W} ${H}`}
-        preserveAspectRatio="none"
-        onMouseLeave={() => setHovered(null)}
-      >
+    <ResponsiveContainer width="100%" height={height}>
+      <AreaChart data={data} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
         <defs>
           <linearGradient id="adminGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="#ef4444" stopOpacity="0.15"/>
-            <stop offset="100%" stopColor="#ef4444" stopOpacity="0"/>
+            <stop offset="0%"   stopColor="#ef4444" stopOpacity={0.15} />
+            <stop offset="100%" stopColor="#ef4444" stopOpacity={0} />
           </linearGradient>
         </defs>
 
-        {/* Y grid */}
-        {yTicks.map((t) => (
-          <g key={t}>
-            <line x1={PAD.left} y1={py(t)} x2={W - PAD.right} y2={py(t)} stroke="#e5e5e5" strokeWidth="1" strokeDasharray="3,3"/>
-            <text x={PAD.left - 6} y={py(t) + 4} textAnchor="end" fontSize="9" fill="#9ca3af">{fmt(t)}</text>
-          </g>
-        ))}
+        <CartesianGrid strokeDasharray="3 3" stroke="#f5f5f4" vertical={false} />
 
-        {/* Area fill */}
-        <path d={areaPath} fill="url(#adminGrad)"/>
+        <XAxis
+          dataKey="date"
+          tickFormatter={fmtDate}
+          tick={{ fontSize: 10, fill: '#9ca3af' }}
+          axisLine={false}
+          tickLine={false}
+          interval="preserveStartEnd"
+        />
 
-        {/* Line */}
-        <path d={linePath} fill="none" stroke="#ef4444" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round"/>
+        <YAxis
+          tickFormatter={fmtNaira}
+          tick={{ fontSize: 10, fill: '#9ca3af' }}
+          axisLine={false}
+          tickLine={false}
+          width={52}
+        />
 
-        {/* X labels */}
-        {data.map((d, i) => {
-          if (i % xStep !== 0 && i !== data.length - 1) return null
-          return (
-            <text key={i} x={px(i)} y={H - 4} textAnchor="middle" fontSize="9" fill="#9ca3af">
-              {fmtDate(d.date)}
-            </text>
-          )
-        })}
+        <Tooltip
+          {...TooltipStyle}
+          labelFormatter={fmtDate}
+          formatter={(value: number, name: string) => [
+            name === 'revenue' ? `₦${value.toLocaleString()}` : value,
+            name === 'revenue' ? 'Revenue' : 'Orders',
+          ]}
+        />
 
-        {/* Hover targets */}
-        {data.map((d, i) => (
-          <rect
-            key={i}
-            x={px(i) - (chartW / data.length) / 2}
-            y={PAD.top}
-            width={chartW / data.length}
-            height={chartH}
-            fill="transparent"
-            onMouseEnter={() => setHovered(i)}
-          />
-        ))}
-
-        {/* Hover crosshair + dot */}
-        {hovered !== null && (
-          <>
-            <line
-              x1={px(hovered)} y1={PAD.top}
-              x2={px(hovered)} y2={PAD.top + chartH}
-              stroke="#ef4444" strokeWidth="1" strokeDasharray="4,3" opacity="0.5"
-            />
-            <circle cx={px(hovered)} cy={py(data[hovered].revenue)} r="4" fill="#ef4444" stroke="white" strokeWidth="2"/>
-            {/* Tooltip */}
-            {(() => {
-              const tx = Math.min(Math.max(px(hovered) - 52, 2), W - 110)
-              const ty = py(data[hovered].revenue) - 54
-              return (
-                <g>
-                  <rect x={tx} y={ty > 0 ? ty : 4} width={108} height={44} rx="6" fill="#111111" opacity="0.92"/>
-                  <text x={tx + 8} y={(ty > 0 ? ty : 4) + 14} fontSize="9" fill="#9ca3af">{fmtDate(data[hovered].date)}</text>
-                  <text x={tx + 8} y={(ty > 0 ? ty : 4) + 27} fontSize="11" fill="white" fontWeight="600">₦{data[hovered].revenue.toLocaleString()}</text>
-                  <text x={tx + 8} y={(ty > 0 ? ty : 4) + 39} fontSize="9" fill="#6b6b6b">{data[hovered].orders} orders</text>
-                </g>
-              )
-            })()}
-          </>
-        )}
-      </svg>
-    </div>
+        <Area
+          type="monotone"
+          dataKey="revenue"
+          stroke="#ef4444"
+          strokeWidth={2}
+          fill="url(#adminGrad)"
+          dot={false}
+          activeDot={{ r: 4, fill: '#ef4444', stroke: '#fff', strokeWidth: 2 }}
+        />
+      </AreaChart>
+    </ResponsiveContainer>
   )
 }

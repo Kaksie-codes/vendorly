@@ -5,10 +5,11 @@
 
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { getVendorById } from '@/lib/mock-data'
+import { Select } from '@/components/ui/Select'
 
 const VENDOR_ID = 'vendor-1'
 
@@ -54,7 +55,13 @@ export default function VendorProfilePage() {
   const vendor = getVendorById(VENDOR_ID)!
   const plan   = PLAN_META[vendor.plan] ?? PLAN_META.free
 
-  const [tab, setTab]   = useState<Tab>('store')
+  const [tab, setTab] = useState<Tab>('store')
+
+  const readFile = (file: File, setter: (url: string) => void) => {
+    const reader = new FileReader()
+    reader.onload = (e) => { setter(e.target?.result as string); markDirty() }
+    reader.readAsDataURL(file)
+  }
   const [saving, setSaving] = useState(false)
   const [saved,  setSaved]  = useState(false)
   const [dirty,  setDirty]  = useState(false)
@@ -63,8 +70,11 @@ export default function VendorProfilePage() {
   const [storeName,    setStoreName]    = useState(vendor.storeName)
   const [tagline,      setTagline]      = useState(vendor.tagline ?? '')
   const [description,  setDescription]  = useState(vendor.description ?? '')
-  const [logo,         setLogo]         = useState(vendor.logo ?? '')
-  const [banner,       setBanner]       = useState(vendor.banner ?? '')
+  const [logo,           setLogo]           = useState(vendor.logo ?? '')
+  const [banner,         setBanner]         = useState(vendor.banner ?? '')
+  const [bannerPosition, setBannerPosition] = useState({ x: 50, y: 50 })
+  const [bannerModalOpen, setBannerModalOpen] = useState(false)
+  const [pendingBannerSrc, setPendingBannerSrc] = useState('')
 
   // ── Contact ──
   const [email,          setEmail]          = useState(vendor.email ?? '')
@@ -106,6 +116,7 @@ export default function VendorProfilePage() {
   const labelCls = 'block text-xs font-semibold text-[#9ca3af] uppercase tracking-wider mb-1.5'
 
   return (
+    <>
     <div className="p-5 lg:p-7 max-w-[1100px]">
 
       {/* ── Header ── */}
@@ -171,15 +182,28 @@ export default function VendorProfilePage() {
                 <label className={labelCls}>Store Banner</label>
                 <div className="relative rounded-2xl overflow-hidden bg-[#f5f5f4] h-40 mb-3 group">
                   {banner && (
-                    <Image src={banner} alt="Banner" fill className="object-cover"/>
+                    <Image src={banner} alt="Banner" fill className="object-cover"
+                      style={{ objectPosition: `${bannerPosition.x}% ${bannerPosition.y}%` }} />
                   )}
                   <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <label className="flex items-center gap-2 bg-white text-[#111111] text-xs font-semibold px-4 py-2 rounded-xl cursor-pointer hover:bg-[#f5f5f4] transition-colors shadow-md">
+                    <label htmlFor="banner-upload" className="flex items-center gap-2 bg-white text-[#111111] text-xs font-semibold px-4 py-2 rounded-xl cursor-pointer hover:bg-[#f5f5f4] transition-colors shadow-md">
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
                       </svg>
                       Upload banner
                     </label>
+                    <input id="banner-upload" type="file" accept="image/*" className="hidden"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0]
+                        if (!f) return
+                        const reader = new FileReader()
+                        reader.onload = (ev) => {
+                          setPendingBannerSrc(ev.target?.result as string)
+                          setBannerModalOpen(true)
+                        }
+                        reader.readAsDataURL(f)
+                        e.target.value = ''
+                      }} />
                   </div>
                   {!banner && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-[#9ca3af] gap-2">
@@ -215,12 +239,14 @@ export default function VendorProfilePage() {
                     }
                   </div>
                   <div className="flex-1 space-y-2">
-                    <label className="flex items-center gap-2 border border-[#e5e5e5] text-[#111111] text-sm font-medium px-4 py-2 rounded-xl cursor-pointer hover:bg-[#f5f5f4] transition-colors w-fit">
+                    <label htmlFor="logo-upload" className="flex items-center gap-2 border border-[#e5e5e5] text-[#111111] text-sm font-medium px-4 py-2 rounded-xl cursor-pointer hover:bg-[#f5f5f4] transition-colors w-fit">
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
                       </svg>
                       Upload logo
                     </label>
+                    <input id="logo-upload" type="file" accept="image/*" className="hidden"
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) readFile(f, setLogo) }} />
                     <input value={logo}
                       onChange={(e) => { setLogo(e.target.value); markDirty() }}
                       placeholder="Or paste image URL…"
@@ -349,18 +375,20 @@ export default function VendorProfilePage() {
 
                   <div>
                     <label className={labelCls}>Country</label>
-                    <select value={addressCountry}
-                      onChange={(e) => { setAddressCountry(e.target.value); markDirty() }}
-                      className={inputCls}>
-                      <option value="NG">Nigeria</option>
-                      <option value="US">United States</option>
-                      <option value="GB">United Kingdom</option>
-                      <option value="CA">Canada</option>
-                      <option value="AU">Australia</option>
-                      <option value="GH">Ghana</option>
-                      <option value="KE">Kenya</option>
-                      <option value="ZA">South Africa</option>
-                    </select>
+                    <Select
+                      options={[
+                        { value: 'NG', label: 'Nigeria' },
+                        { value: 'US', label: 'United States' },
+                        { value: 'GB', label: 'United Kingdom' },
+                        { value: 'CA', label: 'Canada' },
+                        { value: 'AU', label: 'Australia' },
+                        { value: 'GH', label: 'Ghana' },
+                        { value: 'KE', label: 'Kenya' },
+                        { value: 'ZA', label: 'South Africa' },
+                      ]}
+                      value={addressCountry}
+                      onChange={(v) => { setAddressCountry(v); markDirty() }}
+                    />
                   </div>
                 </div>
               </div>
@@ -486,7 +514,8 @@ export default function VendorProfilePage() {
             {/* Mini banner */}
             <div className="h-20 bg-[#f5f5f4] relative">
               {banner && (
-                <Image src={banner} alt="" fill className="object-cover"/>
+                <Image src={banner} alt="" fill className="object-cover"
+                  style={{ objectPosition: `${bannerPosition.x}% ${bannerPosition.y}%` }} />
               )}
             </div>
             {/* Logo + info */}
@@ -605,7 +634,7 @@ export default function VendorProfilePage() {
               ))}
             </div>
             {vendor.plan !== 'enterprise' && (
-              <Link href="/vendor/settings"
+              <Link href="/vendor/settings?tab=billing"
                 className="w-full flex items-center justify-center gap-1.5 text-xs font-semibold bg-[#111111] text-white py-2.5 rounded-xl hover:bg-[#2a2a2a] transition-colors">
                 Upgrade plan →
               </Link>
@@ -634,6 +663,142 @@ export default function VendorProfilePage() {
         </div>
       </div>
 
+    </div>
+
+    {bannerModalOpen && (
+      <BannerPositionModal
+        src={pendingBannerSrc}
+        initialPosition={bannerPosition}
+        onConfirm={(pos) => {
+          setBanner(pendingBannerSrc)
+          setBannerPosition(pos)
+          setBannerModalOpen(false)
+          markDirty()
+        }}
+        onClose={() => setBannerModalOpen(false)}
+      />
+    )}
+    </>
+  )
+}
+
+function BannerPositionModal({
+  src,
+  initialPosition,
+  onConfirm,
+  onClose,
+}: {
+  src: string
+  initialPosition: { x: number; y: number }
+  onConfirm: (pos: { x: number; y: number }) => void
+  onClose: () => void
+}) {
+  const frameRef = useRef<HTMLDivElement>(null)
+  const [position, setPosition] = useState(initialPosition)
+  const dragging = useRef(false)
+  const dragStart = useRef({ mx: 0, my: 0, px: 0, py: 0 })
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent | TouchEvent) => {
+      if (!dragging.current || !frameRef.current) return
+      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
+      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
+      const { width, height } = frameRef.current.getBoundingClientRect()
+      const dx = clientX - dragStart.current.mx
+      const dy = clientY - dragStart.current.my
+      setPosition({
+        x: Math.max(0, Math.min(100, dragStart.current.px - (dx / width)  * 100)),
+        y: Math.max(0, Math.min(100, dragStart.current.py - (dy / height) * 100)),
+      })
+    }
+    const onUp = () => { dragging.current = false }
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup',   onUp)
+    window.addEventListener('touchmove', onMove, { passive: false })
+    window.addEventListener('touchend',  onUp)
+    return () => {
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup',   onUp)
+      window.removeEventListener('touchmove', onMove)
+      window.removeEventListener('touchend',  onUp)
+    }
+  }, [])
+
+  const startDrag = (e: React.MouseEvent | React.TouchEvent) => {
+    dragging.current = true
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
+    dragStart.current = { mx: clientX, my: clientY, px: position.x, py: position.y }
+    e.preventDefault()
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden">
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#e5e5e5]">
+          <div>
+            <h2 className="font-semibold text-[#111111]">Position Banner</h2>
+            <p className="text-xs text-[#9ca3af] mt-0.5">Drag the image to choose what's in frame</p>
+          </div>
+          <button onClick={onClose} className="text-[#9ca3af] hover:text-[#111111] transition-colors p-1">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        {/* Drag area */}
+        <div className="p-5">
+          <div
+            ref={frameRef}
+            onMouseDown={startDrag}
+            onTouchStart={startDrag}
+            className="relative w-full h-44 overflow-hidden rounded-xl cursor-grab active:cursor-grabbing select-none bg-[#f5f5f4]"
+            style={{ touchAction: 'none' }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={src}
+              alt="Banner"
+              draggable={false}
+              className="absolute inset-0 w-full h-full pointer-events-none"
+              style={{ objectFit: 'cover', objectPosition: `${position.x}% ${position.y}%` }}
+            />
+            {/* Drag hint overlay — fades out after first drag */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="flex items-center gap-2 bg-black/40 text-white text-xs font-medium px-3 py-1.5 rounded-full backdrop-blur-sm">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"/>
+                </svg>
+                Drag to reposition
+              </div>
+            </div>
+          </div>
+
+          {/* Coordinates display */}
+          <p className="text-xs text-[#9ca3af] text-right mt-2">
+            Position: {Math.round(position.x)}% × {Math.round(position.y)}%
+          </p>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-3 px-5 pb-5">
+          <button
+            onClick={onClose}
+            className="flex-1 py-2.5 border border-[#e5e5e5] rounded-xl text-sm font-medium text-[#6b6b6b] hover:bg-[#f5f5f4] transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => onConfirm(position)}
+            className="flex-1 py-2.5 bg-[#111111] text-white rounded-xl text-sm font-semibold hover:bg-[#2a2a2a] transition-colors"
+          >
+            Apply
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

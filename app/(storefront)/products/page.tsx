@@ -168,18 +168,6 @@ export default function ProductsPage() {
                 onChange={(v) => { setSort(v as SortOption); setPage(1) }}
                 options={SORT_OPTIONS}
               />
-              <div className="relative">
-                <select
-                  value={sort}
-                  onChange={(e) => { setSort(e.target.value as SortOption); setPage(1) }}
-                  className="appearance-none pl-3 pr-8 py-2 text-sm text-text-primary bg-bg-primary border border-border-subtle rounded-lg outline-none focus:border-accent-gold transition-all cursor-pointer"
-                >
-                  {SORT_OPTIONS.map((o) => (
-                    <option key={o.value} value={o.value}>{o.label}</option>
-                  ))}
-                </select>
-                <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M6 9l6 6 6-6" /></svg>
-              </div>
 
               {/* View toggle */}
               <div className="flex border border-border-subtle rounded-lg overflow-hidden">

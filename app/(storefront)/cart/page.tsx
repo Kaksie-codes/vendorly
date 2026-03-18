@@ -10,6 +10,7 @@ import Link  from 'next/link'
 import Image from 'next/image'
 import { useCart }    from '@/providers/CartProvider'
 import { mockVendors } from '@/lib/mock-data'
+import { Breadcrumb } from '@/components/ui/Container'
 
 export default function CartPage() {
   const { items, updateQty, removeItem, subtotal, clearCart } = useCart()
@@ -20,6 +21,7 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Cart' }]} className="mb-10" />
         <div className="flex flex-col items-center gap-5 text-center max-w-sm mx-auto">
           <div className="w-20 h-20 rounded-full bg-[#f5f5f4] flex items-center justify-center">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5">

@@ -10,6 +10,7 @@ import Image from 'next/image'
 import Link  from 'next/link'
 import { mockOrders, getVendorById } from '@/lib/mock-data'
 import type { Order, OrderStatus } from '@/types'
+import { Select } from '@/components/ui/Select'
 
 const STATUS_PILL: Record<string, string> = {
   pending:          'bg-[#fef3c7] text-[#d97706]',
@@ -124,12 +125,17 @@ export default function AdminOrdersPage() {
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search order # or customer…"
             className="w-full pl-9 pr-4 py-2 text-sm border border-[#e5e5e5] rounded-xl focus:outline-none focus:border-[#ef4444] bg-white" />
         </div>
-        <select value={sort} onChange={(e) => setSort(e.target.value)} className="px-3 py-2 text-sm border border-[#e5e5e5] rounded-xl bg-white focus:outline-none text-[#6b6b6b]">
-          <option value="newest">Newest First</option>
-          <option value="oldest">Oldest First</option>
-          <option value="highest">Highest Value</option>
-          <option value="lowest">Lowest Value</option>
-        </select>
+        <Select
+          options={[
+            { value: 'newest',  label: 'Newest First' },
+            { value: 'oldest',  label: 'Oldest First' },
+            { value: 'highest', label: 'Highest Value' },
+            { value: 'lowest',  label: 'Lowest Value' },
+          ]}
+          value={sort}
+          onChange={(v) => setSort(v)}
+          size="sm"
+        />
       </div>
 
       {/* Table */}
@@ -260,7 +266,11 @@ function AdminOrderRow({ order, expanded, onToggle }: {
                 <p className="text-xs text-[#9ca3af]">{order.trackingCarrier}</p>
               </div>
             )}
-            <div className="pt-2 border-t border-[#e5e5e5]">
+            <div className="pt-2 border-t border-[#e5e5e5] flex flex-col gap-1.5">
+              <Link href={`/admin/orders/${order.id}`}
+                className="text-xs font-semibold text-[#ef4444] hover:underline">
+                View full order →
+              </Link>
               <Link href={`/admin/users/${order.userId}`}
                 className="text-xs font-semibold text-[#ef4444] hover:underline">
                 View customer →

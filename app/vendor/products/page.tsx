@@ -10,6 +10,7 @@ import Link  from 'next/link'
 import Image from 'next/image'
 import { mockProducts, getFeaturedCategories } from '@/lib/mock-data'
 import type { Product } from '@/types'
+import { Select } from '@/components/ui/Select'
 
 const VENDOR_ID = 'vendor-1'
 
@@ -126,13 +127,18 @@ export default function VendorProductsPage() {
             className="w-full pl-9 pr-4 py-2 text-sm border border-[#e5e5e5] rounded-xl focus:outline-none focus:border-[#c8a951] bg-white"
           />
         </div>
-        <select value={catFilter} onChange={(e) => setCatFilter(e.target.value)} className="px-3 py-2 text-sm border border-[#e5e5e5] rounded-xl bg-white focus:outline-none focus:border-[#c8a951]">
-          <option value="all">All Categories</option>
-          {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-        </select>
-        <select value={sort} onChange={(e) => setSort(e.target.value)} className="px-3 py-2 text-sm border border-[#e5e5e5] rounded-xl bg-white focus:outline-none focus:border-[#c8a951]">
-          {SORT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
+        <Select
+          options={[{ value: 'all', label: 'All Categories' }, ...categories.map((c) => ({ value: c.id, label: c.name }))]}
+          value={catFilter}
+          onChange={(v) => setCatFilter(v)}
+          size="sm"
+        />
+        <Select
+          options={SORT_OPTIONS}
+          value={sort}
+          onChange={(v) => setSort(v)}
+          size="sm"
+        />
       </div>
 
       {/* Bulk actions bar */}

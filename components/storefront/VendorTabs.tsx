@@ -11,6 +11,7 @@ import type { Vendor, Product, Review } from '@/types'
 import { Rating }      from '@/components/ui/Rating'
 import { ProductCard } from '@/components/storefront/ProductCard'
 import { mockVendors } from '@/lib/mock-data'
+import { Select } from '@/components/ui/Select'
 
 type Props = {
   vendor:      Vendor
@@ -87,13 +88,12 @@ export function VendorTabs({ vendor, products, reviews, featured, bestsellers }:
                 className="w-full pl-9 pr-4 py-2 text-sm border border-[#e5e5e5] rounded-xl focus:outline-none focus:border-[#c8a951] focus:ring-2 focus:ring-[#c8a951]/10"
               />
             </div>
-            <select
+            <Select
+              options={SORT_OPTIONS}
               value={sort}
-              onChange={(e) => setSort(e.target.value)}
-              className="px-3 py-2 text-sm border border-[#e5e5e5] rounded-xl focus:outline-none focus:border-[#c8a951] text-[#111111] bg-white"
-            >
-              {SORT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-            </select>
+              onChange={(v) => setSort(v)}
+              size="sm"
+            />
           </div>
 
           {filteredProducts.length === 0 ? (

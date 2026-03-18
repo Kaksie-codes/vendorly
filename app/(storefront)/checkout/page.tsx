@@ -9,6 +9,8 @@ import React, { useState } from 'react'
 import Link  from 'next/link'
 import Image from 'next/image'
 import { useCart } from '@/providers/CartProvider'
+import { Select } from '@/components/ui/Select'
+import { Breadcrumb } from '@/components/ui/Container'
 
 // ─── Step types ───────────────────────────────────────────────────────────────
 
@@ -75,6 +77,9 @@ export default function CheckoutPage() {
 
   return (
     <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      {/* Breadcrumb */}
+      <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Cart', href: '/cart' }, { label: 'Checkout' }]} className="mb-6" />
+
       {/* ── Progress ───────────────────────────────────────────────────── */}
       <div className="flex items-center gap-0 mb-10 max-w-lg mx-auto">
         {STEPS.map((s, i) => {
@@ -123,18 +128,18 @@ export default function CheckoutPage() {
                 <Field label="Postal Code" value={address.postalCode} onChange={(v) => setAddress((a) => ({ ...a, postalCode: v }))} />
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs font-semibold text-[#6b6b6b] uppercase tracking-wider">Country</label>
-                  <select
+                  <Select
+                    options={[
+                      { value: 'NG', label: 'Nigeria' },
+                      { value: 'GH', label: 'Ghana' },
+                      { value: 'KE', label: 'Kenya' },
+                      { value: 'ZA', label: 'South Africa' },
+                      { value: 'US', label: 'United States' },
+                      { value: 'GB', label: 'United Kingdom' },
+                    ]}
                     value={address.country}
-                    onChange={(e) => setAddress((a) => ({ ...a, country: e.target.value }))}
-                    className="px-3 py-2.5 text-sm border border-[#e5e5e5] rounded-xl focus:outline-none focus:border-[#c8a951] bg-white"
-                  >
-                    <option value="NG">Nigeria</option>
-                    <option value="GH">Ghana</option>
-                    <option value="KE">Kenya</option>
-                    <option value="ZA">South Africa</option>
-                    <option value="US">United States</option>
-                    <option value="GB">United Kingdom</option>
-                  </select>
+                    onChange={(v) => setAddress((a) => ({ ...a, country: v }))}
+                  />
                 </div>
               </div>
 
