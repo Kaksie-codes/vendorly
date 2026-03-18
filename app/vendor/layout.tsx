@@ -8,6 +8,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { SignOutModal } from '@/components/ui/SignOutModal'
 
 const NAV = [
   { href: '/vendor/dashboard', label: 'Dashboard',    icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> },
@@ -42,7 +43,7 @@ function NavItem({ item, active, onClick }: {
   )
 }
 
-function Sidebar({ onNav, isActive }: { onNav?: () => void; isActive: (href: string) => boolean }) {
+function Sidebar({ onNav, isActive, onSignOut }: { onNav?: () => void; isActive: (href: string) => boolean; onSignOut: () => void }) {
   return (
     <>
       <div className="px-6 py-5 border-b border-white/10 shrink-0">
@@ -67,14 +68,20 @@ function Sidebar({ onNav, isActive }: { onNav?: () => void; isActive: (href: str
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           Storefront
         </Link>
+        <button onClick={onSignOut}
+          className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs text-white/40 hover:text-[#ef4444] hover:bg-white/[0.06] transition-colors w-full text-left">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign Out
+        </button>
       </div>
     </>
   )
 }
 
 export default function VendorLayout({ children }: { children: React.ReactNode }) {
-  const pathname   = usePathname()
-  const [open, setOpen] = useState(false)
+  const pathname = usePathname()
+  const [open,        setOpen]        = useState(false)
+  const [signOutOpen, setSignOutOpen] = useState(false)
 
   const isActive = (href: string) =>
     href === '/vendor/dashboard' ? pathname === href : pathname.startsWith(href)
@@ -84,7 +91,7 @@ export default function VendorLayout({ children }: { children: React.ReactNode }
 
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex flex-col w-60 shrink-0 bg-[#111111]">
-        <Sidebar isActive={isActive} />
+        <Sidebar isActive={isActive} onSignOut={() => setSignOutOpen(true)} />
       </aside>
 
       {/* Mobile drawer */}
@@ -99,7 +106,7 @@ export default function VendorLayout({ children }: { children: React.ReactNode }
               </button>
             </div>
             <div className="flex flex-col flex-1 overflow-hidden">
-              <Sidebar isActive={isActive} onNav={() => setOpen(false)} />
+              <Sidebar isActive={isActive} onNav={() => setOpen(false)} onSignOut={() => { setOpen(false); setSignOutOpen(true) }} />
             </div>
           </div>
         </div>
@@ -118,6 +125,7 @@ export default function VendorLayout({ children }: { children: React.ReactNode }
         {children}
       </main>
 
+      {signOutOpen && <SignOutModal onClose={() => setSignOutOpen(false)} />}
     </div>
   )
 }

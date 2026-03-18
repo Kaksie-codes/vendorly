@@ -8,6 +8,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { SignOutModal } from '@/components/ui/SignOutModal'
 
 const NAV = [
   {
@@ -87,7 +88,7 @@ function NavItem({ item, active, onClick }: {
   )
 }
 
-function Sidebar({ onNav, isActive }: { onNav?: () => void; isActive: (href: string) => boolean }) {
+function Sidebar({ onNav, isActive, onSignOut }: { onNav?: () => void; isActive: (href: string) => boolean; onSignOut: () => void }) {
   return (
     <>
       {/* ── Fixed top: logo ── */}
@@ -119,10 +120,16 @@ function Sidebar({ onNav, isActive }: { onNav?: () => void; isActive: (href: str
         </Link>
         <div className="flex items-center gap-2.5 px-3 py-2.5 mt-1">
           <div className="w-7 h-7 rounded-full bg-[#ef4444]/20 flex items-center justify-center text-[0.6rem] font-bold text-[#ef4444] shrink-0">A</div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="text-xs font-medium text-white/70 truncate">Admin User</p>
             <p className="text-[0.6rem] text-white/30 truncate">admin@vendorly.com</p>
           </div>
+          <button onClick={onSignOut} title="Sign out"
+            className="text-white/30 hover:text-[#ef4444] transition-colors p-1 shrink-0">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+          </button>
         </div>
       </div>
     </>
@@ -131,7 +138,8 @@ function Sidebar({ onNav, isActive }: { onNav?: () => void; isActive: (href: str
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const [mobileOpen, setMobileOpen] = useState(false)
+  const [mobileOpen,  setMobileOpen]  = useState(false)
+  const [signOutOpen, setSignOutOpen] = useState(false)
 
   const isActive = (href: string) =>
     href === '/admin/dashboard' ? pathname === href : pathname.startsWith(href)
@@ -141,7 +149,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* ── Desktop sidebar ── */}
       <aside className="hidden lg:flex flex-col w-60 shrink-0 bg-[#0f0f0f] sticky top-0 h-screen">
-        <Sidebar isActive={isActive} />
+        <Sidebar isActive={isActive} onSignOut={() => setSignOutOpen(true)} />
       </aside>
 
       {/* ── Mobile drawer ── */}
@@ -159,7 +167,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </button>
             </div>
             <div className="flex flex-col flex-1 overflow-hidden">
-              <Sidebar isActive={isActive} onNav={() => setMobileOpen(false)} />
+              <Sidebar isActive={isActive} onNav={() => setMobileOpen(false)} onSignOut={() => { setMobileOpen(false); setSignOutOpen(true) }} />
             </div>
           </div>
         </div>
@@ -180,6 +188,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <main className="flex-1 min-w-0 pt-14 lg:pt-0">
         {children}
       </main>
+
+      {signOutOpen && <SignOutModal onClose={() => setSignOutOpen(false)} />}
     </div>
   )
 }

@@ -148,31 +148,42 @@ export default function AdminUsersPage() {
 
       {/* Table */}
       <div className="rounded-2xl border border-[#e5e5e5] overflow-hidden">
-        <div className="grid bg-[#fafaf9] border-b border-[#e5e5e5] px-5 py-3"
-          style={{ gridTemplateColumns: '1fr 90px 110px 140px 110px' }}>
-          {['User', 'Role', 'Status', 'Joined', 'Actions'].map((h) => (
-            <span key={h} className="text-[0.65rem] font-semibold uppercase tracking-wider text-[#9ca3af]">{h}</span>
-          ))}
-        </div>
-        <div className="divide-y divide-[#f5f5f4] bg-white">
-          {filtered.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 py-16 text-center">
-              <span className="text-3xl">👤</span>
-              <p className="font-semibold text-[#111111]">No users found</p>
-              <button onClick={() => { setSearch(''); setTab('all'); setRole('all') }} className="text-sm text-[#ef4444] underline">Clear filters</button>
-            </div>
-          ) : (
-            filtered.map((user) => (
-              <UserRow
-                key={user.id}
-                user={user}
-                status={statuses[user.id]}
-                customer={mockCustomers.find((c) => c.id === user.id)}
-                onSuspend={() => suspend(user.id)}
-                onReactivate={() => reactivate(user.id)}
-              />
-            ))
-          )}
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[620px] border-collapse">
+            <thead>
+              <tr className="bg-[#fafaf9] border-b border-[#e5e5e5]">
+                {['User', 'Role', 'Status', 'Joined', 'Actions'].map((h) => (
+                  <th key={h} className="text-left px-5 py-3 text-[0.65rem] font-semibold uppercase tracking-wider text-[#9ca3af] whitespace-nowrap">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-[#f5f5f4]">
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-16 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <span className="text-3xl">👤</span>
+                      <p className="font-semibold text-[#111111]">No users found</p>
+                      <button onClick={() => { setSearch(''); setTab('all'); setRole('all') }} className="text-sm text-[#ef4444] underline">Clear filters</button>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filtered.map((user) => (
+                  <UserRow
+                    key={user.id}
+                    user={user}
+                    status={statuses[user.id]}
+                    customer={mockCustomers.find((c) => c.id === user.id)}
+                    onSuspend={() => suspend(user.id)}
+                    onReactivate={() => reactivate(user.id)}
+                  />
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
       <p className="text-sm text-[#9ca3af] mt-4">Showing {filtered.length} of {mockUsers.length} users</p>
@@ -186,64 +197,71 @@ function UserRow({ user, status, customer, onSuspend, onReactivate }: {
   onSuspend: () => void; onReactivate: () => void
 }) {
   return (
-    <div className="grid items-center px-5 py-4 hover:bg-[#fafaf9] transition-colors"
-      style={{ gridTemplateColumns: '1fr 90px 110px 140px 110px' }}>
+    <tr className="group hover:bg-[#fafaf9] transition-colors">
 
       {/* User */}
-      <Link href={`/admin/users/${user.id}`} className="flex items-center gap-3 min-w-0 group">
-        <div className="relative w-9 h-9 rounded-full overflow-hidden bg-[#f5f5f4] border border-[#e5e5e5] shrink-0">
-          {user.avatar
-            ? <Image src={user.avatar} alt="" fill className="object-cover" sizes="36px" />
-            : <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-[#9ca3af]">{user.firstName[0]}</span>
-          }
-        </div>
-        <div className="min-w-0">
-          <p className="text-sm font-semibold text-[#111111] truncate group-hover:text-[#ef4444] transition-colors">
-            {user.firstName} {user.lastName}
-          </p>
-          <p className="text-xs text-[#9ca3af] truncate">{user.email}</p>
-        </div>
-      </Link>
+      <td className="px-5 py-4 min-w-[200px]">
+        <Link href={`/admin/users/${user.id}`} className="flex items-center gap-3 min-w-0">
+          <div className="relative w-9 h-9 rounded-full overflow-hidden bg-[#f5f5f4] border border-[#e5e5e5] shrink-0">
+            {user.avatar
+              ? <Image src={user.avatar} alt="" fill className="object-cover" sizes="36px" />
+              : <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-[#9ca3af]">{user.firstName[0]}</span>
+            }
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-[#111111] truncate group-hover:text-[#ef4444] transition-colors">
+              {user.firstName} {user.lastName}
+            </p>
+            <p className="text-xs text-[#9ca3af] truncate">{user.email}</p>
+          </div>
+        </Link>
+      </td>
 
       {/* Role */}
-      <span className={`text-[0.65rem] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full capitalize w-fit ${ROLE_PILL[user.role]}`}>
-        {user.role}
-      </span>
+      <td className="px-5 py-4 whitespace-nowrap">
+        <span className={`text-[0.65rem] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full ${ROLE_PILL[user.role]}`}>
+          {user.role}
+        </span>
+      </td>
 
       {/* Status */}
-      <span className={`text-[0.65rem] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full w-fit ${STATUS_PILL[status]}`}>
-        {STATUS_LABEL[status]}
-      </span>
+      <td className="px-5 py-4 whitespace-nowrap">
+        <span className={`text-[0.65rem] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full ${STATUS_PILL[status]}`}>
+          {STATUS_LABEL[status]}
+        </span>
+      </td>
 
-      {/* Joined + spend */}
-      <div>
+      {/* Joined */}
+      <td className="px-5 py-4 whitespace-nowrap">
         <p className="text-sm text-[#6b6b6b]">
           {new Date(user.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' })}
         </p>
         {customer && (
           <p className="text-xs text-[#9ca3af]">{customer.totalOrders} orders · ₦{customer.totalSpent.toLocaleString()}</p>
         )}
-      </div>
+      </td>
 
       {/* Actions */}
-      <div className="flex items-center gap-2">
-        <Link href={`/admin/users/${user.id}`}
-          className="px-3 py-1.5 text-xs font-medium border border-[#e5e5e5] rounded-lg hover:bg-[#f5f5f4] transition-colors text-[#6b6b6b]">
-          View
-        </Link>
-        {status === 'active' && user.role !== 'admin' && (
-          <button onClick={onSuspend}
-            className="px-3 py-1.5 text-xs font-medium text-[#dc2626] border border-[#fecaca] rounded-lg hover:bg-[#fee2e2] transition-colors">
-            Suspend
-          </button>
-        )}
-        {status === 'suspended' && (
-          <button onClick={onReactivate}
-            className="px-3 py-1.5 text-xs font-medium text-[#2563eb] border border-[#bfdbfe] rounded-lg hover:bg-[#dbeafe] transition-colors">
-            Restore
-          </button>
-        )}
-      </div>
-    </div>
+      <td className="px-5 py-4 whitespace-nowrap">
+        <div className="flex items-center gap-2">
+          <Link href={`/admin/users/${user.id}`}
+            className="px-3 py-1.5 text-xs font-medium border border-[#e5e5e5] rounded-lg hover:bg-[#f5f5f4] transition-colors text-[#6b6b6b]">
+            View
+          </Link>
+          {status === 'active' && user.role !== 'admin' && (
+            <button onClick={onSuspend}
+              className="px-3 py-1.5 text-xs font-medium text-[#dc2626] border border-[#fecaca] rounded-lg hover:bg-[#fee2e2] transition-colors">
+              Suspend
+            </button>
+          )}
+          {status === 'suspended' && (
+            <button onClick={onReactivate}
+              className="px-3 py-1.5 text-xs font-medium text-[#2563eb] border border-[#bfdbfe] rounded-lg hover:bg-[#dbeafe] transition-colors">
+              Restore
+            </button>
+          )}
+        </div>
+      </td>
+    </tr>
   )
 }

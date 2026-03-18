@@ -222,12 +222,12 @@ export default function AdminCouponsPage() {
                     </span>
                     {/* Active toggle */}
                     <button onClick={() => toggleActive(c.id)}
-                      title={active ? 'Deactivate' : 'Activate'}
+                      title={c.isActive ? 'Deactivate' : 'Activate'}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors shrink-0 mt-1 ${
-                        active ? 'bg-[#16a34a]' : 'bg-[#d1d5db]'
+                        c.isActive ? 'bg-[#16a34a]' : 'bg-[#d1d5db]'
                       }`}>
                       <span className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${
-                        active ? 'translate-x-6' : 'translate-x-1'
+                        c.isActive ? 'translate-x-6' : 'translate-x-1'
                       }`}/>
                     </button>
                   </div>
