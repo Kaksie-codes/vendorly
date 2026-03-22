@@ -5,10 +5,12 @@
 
 'use client'
 
-import React, { useState } from 'react'
-import { useSearchParams } from 'next/navigation'
-import Link  from 'next/link'
-import Image from 'next/image'
+import React, { useState, useEffect } from 'react'
+import { useSearchParams }             from 'next/navigation'
+import { useRouter }                   from 'next/navigation'
+import Link                            from 'next/link'
+import Image                           from 'next/image'
+import { useAuthStore }                from '@/store/authStore'
 import {
   getOrdersByUser,
   getCustomerById,
@@ -41,14 +43,23 @@ const ORDER_STATUS_STYLES: Record<string, string> = {
 }
 
 export default function AccountPage() {
-  const customer = getCustomerById(MOCK_USER_ID)
-  const orders   = getOrdersByUser(MOCK_USER_ID)
+  const customer     = getCustomerById(MOCK_USER_ID)
+  const orders       = getOrdersByUser(MOCK_USER_ID)
   const searchParams = useSearchParams()
+  const router       = useRouter()
+  const { isAuthed, user: authUser } = useAuthStore()
   const [signOutOpen, setSignOutOpen] = useState(false)
   const [tab, setTab] = useState<Tab>(() => {
     const t = searchParams.get('tab')
     return (TABS.some((x) => x.id === t) ? t : 'profile') as Tab
   })
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isAuthed) router.replace('/login')
+  }, [isAuthed, router])
+
+  if (!isAuthed) return null
 
   const wishlistProducts = mockProducts.filter((p) => customer?.wishlist.includes(p.id)).slice(0, 8)
 

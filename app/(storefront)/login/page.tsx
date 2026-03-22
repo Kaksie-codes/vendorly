@@ -1,160 +1,291 @@
+'use client'
+
 // -----------------------------------------------------------------------------
 // File: page.tsx
 // Path: app/(storefront)/login/page.tsx
 // -----------------------------------------------------------------------------
 
-'use client'
-
 import React, { useState } from 'react'
-import Link   from 'next/link'
-import { useRouter } from 'next/navigation'
+import Link                from 'next/link'
+import { useRouter }       from 'next/navigation'
+import { z }               from 'zod'
+import { useAuthStore }    from '@/store/authStore'
+import { apiClient }       from '@/lib/api/client'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api'
+
+// ─── Zod schema ───────────────────────────────────────────────────────────────
+const schema = z.object({
+  email:    z.string().email('Please enter a valid email address'),
+  password: z.string().min(1, 'Password is required'),
+})
+
+type FormErrors = Partial<Record<keyof z.infer<typeof schema>, string>>
+
+// ─── Provider SVGs ────────────────────────────────────────────────────────────
+const GoogleIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24">
+    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+  </svg>
+)
+
+const GitHubIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.137 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+  </svg>
+)
+
+const FacebookIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24">
+    <path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+  </svg>
+)
+
+const XIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+  </svg>
+)
+
+// ─── Component ────────────────────────────────────────────────────────────────
 export default function LoginPage() {
-  const router = useRouter()
-  const [tab,        setTab]        = useState<'login' | 'vendor'>('login')
-  const [email,      setEmail]      = useState('')
-  const [password,   setPassword]   = useState('')
-  const [showPwd,    setShowPwd]    = useState(false)
-  const [remember,   setRemember]   = useState(false)
-  const [loading,    setLoading]    = useState(false)
-  const [error,      setError]      = useState('')
+  const router  = useRouter()
+  const setAuth = useAuthStore((s) => s.setAuth)
 
-  const handleSubmit = async () => {
-    if (!email || !password) { setError('Please fill in all fields.'); return }
-    setError(''); setLoading(true)
-    await new Promise((r) => setTimeout(r, 900))
-    setLoading(false)
-    router.push(tab === 'vendor' ? '/vendor/dashboard' : '/account')
+  const [email,    setEmail]    = useState('')
+  const [password, setPassword] = useState('')
+  const [showPwd,  setShowPwd]  = useState(false)
+  const [errors,   setErrors]   = useState<FormErrors>({})
+  const [apiError, setApiError] = useState('')
+  const [loading,  setLoading]  = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setApiError('')
+
+    const result = schema.safeParse({ email, password })
+    if (!result.success) {
+      const fieldErrors: FormErrors = {}
+      result.error.errors.forEach((err) => {
+        const field = err.path[0] as keyof FormErrors
+        if (!fieldErrors[field]) fieldErrors[field] = err.message
+      })
+      setErrors(fieldErrors)
+      return
+    }
+    setErrors({})
+
+    try {
+      setLoading(true)
+      const res = await apiClient.post<{ data: { token: string; user: any } }>(
+        '/auth/login',
+        { email, password },
+      )
+      setAuth(res.data.user, res.data.token)
+      router.push('/account')
+    } catch (err: any) {
+      setApiError(err.message ?? 'Sign in failed. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <div className="min-h-screen bg-[#fafaf9] flex flex-col items-center justify-center px-4 py-12">
+    <div className="min-h-screen flex">
 
-      {/* Logo */}
-      <Link href="/" className="font-serif text-3xl font-bold text-[#111111] mb-10 hover:opacity-80 transition-opacity">
-        Vendorly
-      </Link>
+      {/* ── Left brand panel ─────────────────────────────────────────────────── */}
+      <div className="hidden lg:flex w-[44%] xl:w-[42%] bg-[#0c0c0c] flex-col relative overflow-hidden shrink-0">
+        {/* Dot pattern */}
+        <div
+          className="absolute inset-0 opacity-[0.04]"
+          style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '28px 28px' }}
+        />
+        {/* Gold gradient blob */}
+        <div className="absolute -top-32 -left-32 w-96 h-96 bg-[#c8a951] opacity-[0.06] rounded-full blur-3xl" />
+        <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-[#c8a951] opacity-[0.06] rounded-full blur-3xl" />
 
-      <div className="w-full max-w-md">
+        <div className="relative z-10 flex flex-col h-full p-12">
+          {/* Logo */}
+          <Link href="/" className="flex flex-col leading-none group w-fit">
+            <span className="font-serif text-xl font-bold text-white group-hover:text-[#c8a951] transition-colors">Vendorly</span>
+            <span className="text-[0.45rem] tracking-[0.35em] uppercase text-[#c8a951] mt-0.5">Marketplace</span>
+          </Link>
 
-        {/* Tab switcher */}
-        <div className="flex gap-1 p-1 bg-[#f5f5f4] rounded-2xl mb-6">
-          {(['login', 'vendor'] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => { setTab(t); setError('') }}
-              className={[
-                'flex-1 py-2.5 text-sm font-semibold rounded-xl transition-all',
-                tab === t ? 'bg-white text-[#111111] shadow-sm' : 'text-[#9ca3af] hover:text-[#6b6b6b]',
-              ].join(' ')}
-            >
-              {t === 'login' ? '🛍️ Shop Account' : '🏪 Seller Account'}
-            </button>
-          ))}
+          {/* Center content */}
+          <div className="flex-1 flex flex-col justify-center max-w-xs">
+            <div className="w-12 h-12 rounded-2xl bg-[#c8a951]/10 border border-[#c8a951]/20 flex items-center justify-center mb-8">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8a951" strokeWidth="1.75">
+                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/>
+              </svg>
+            </div>
+            <h2 className="text-3xl font-bold text-white leading-snug mb-4">
+              Your marketplace,<br />your way.
+            </h2>
+            <p className="text-[#6b7280] text-sm leading-relaxed">
+              Shop from thousands of independent vendors or set up your own store — all in one place.
+            </p>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-4 pt-8 border-t border-white/[0.06]">
+            {[
+              { num: '50K+',  label: 'Vendors' },
+              { num: '500K+', label: 'Products' },
+              { num: '2M+',   label: 'Buyers' },
+            ].map(({ num, label }) => (
+              <div key={label}>
+                <p className="text-lg font-bold text-white">{num}</p>
+                <p className="text-xs text-[#6b7280] mt-0.5">{label}</p>
+              </div>
+            ))}
+          </div>
         </div>
+      </div>
 
-        <div className="bg-white rounded-3xl border border-[#e5e5e5] shadow-sm p-8">
-          <h1 className="font-serif text-2xl font-bold text-[#111111] mb-1">
-            {tab === 'login' ? 'Welcome back' : 'Seller Sign In'}
-          </h1>
-          <p className="text-sm text-[#9ca3af] mb-6">
-            {tab === 'login'
-              ? 'Sign in to track orders, manage your wishlist and more.'
-              : 'Access your vendor dashboard and manage your store.'}
+      {/* ── Right form panel ─────────────────────────────────────────────────── */}
+      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-white overflow-y-auto">
+        <div className="w-full max-w-[400px]">
+
+          {/* Mobile-only logo */}
+          <div className="lg:hidden text-center mb-10">
+            <Link href="/" className="inline-flex flex-col items-center leading-none">
+              <span className="font-serif text-2xl font-bold text-[#111827]">Vendorly</span>
+              <span className="text-[0.45rem] tracking-[0.3em] uppercase text-[#c8a951] mt-0.5">Marketplace</span>
+            </Link>
+          </div>
+
+          <h1 className="text-2xl font-bold text-[#111827] mb-1">Welcome back</h1>
+          <p className="text-[#6b7280] text-sm mb-8">
+            Don&apos;t have an account?{' '}
+            <Link href="/register" className="text-[#c8a951] font-semibold hover:underline">Create one free</Link>
           </p>
 
-          {/* Social logins */}
-          <div className="flex flex-col gap-3 mb-6">
-            {[
-              { label: 'Continue with Google', icon: '🔵' },
-              { label: 'Continue with Facebook', icon: '🔷' },
-            ].map((s) => (
-              <button key={s.label} className="flex items-center justify-center gap-3 w-full py-2.5 border border-[#e5e5e5] rounded-xl text-sm font-medium text-[#6b6b6b] hover:bg-[#fafaf9] hover:border-[#d1d5db] transition-all">
-                <span>{s.icon}</span>{s.label}
-              </button>
-            ))}
+          {/* ── OAuth providers ──────────────────────────────────────────────── */}
+          <div className="grid grid-cols-2 gap-2.5 mb-6">
+            {/* Google — functional */}
+            <a
+              href={`${API_URL}/auth/google`}
+              className="flex items-center justify-center gap-2 py-2.5 px-3 border border-[#e5e7eb] rounded-xl text-sm font-medium text-[#374151] hover:bg-[#f9fafb] hover:border-[#d1d5db] transition-all col-span-2"
+            >
+              <GoogleIcon /> Continue with Google
+            </a>
+
+            {/* GitHub — dummy */}
+            <button
+              type="button"
+              className="flex items-center justify-center gap-2 py-2.5 px-3 border border-[#e5e7eb] rounded-xl text-sm font-medium text-[#374151] hover:bg-[#f9fafb] hover:border-[#d1d5db] transition-all"
+            >
+              <GitHubIcon /> GitHub
+            </button>
+
+            {/* Facebook — dummy */}
+            <button
+              type="button"
+              className="flex items-center justify-center gap-2 py-2.5 px-3 border border-[#e5e7eb] rounded-xl text-sm font-medium text-[#374151] hover:bg-[#f9fafb] hover:border-[#d1d5db] transition-all"
+            >
+              <FacebookIcon /> Facebook
+            </button>
+
+            {/* X — dummy */}
+            <button
+              type="button"
+              className="flex items-center justify-center gap-2 py-2.5 px-3 border border-[#e5e7eb] rounded-xl text-sm font-medium text-[#374151] hover:bg-[#f9fafb] hover:border-[#d1d5db] transition-all col-span-2"
+            >
+              <XIcon /> Continue with X
+            </button>
           </div>
 
           {/* Divider */}
           <div className="flex items-center gap-3 mb-6">
-            <div className="flex-1 h-px bg-[#f5f5f4]" />
-            <span className="text-xs text-[#d1d5db] font-medium uppercase tracking-wider">or</span>
-            <div className="flex-1 h-px bg-[#f5f5f4]" />
+            <div className="flex-1 h-px bg-[#f3f4f6]" />
+            <span className="text-xs text-[#9ca3af] font-medium uppercase tracking-wider">or</span>
+            <div className="flex-1 h-px bg-[#f3f4f6]" />
           </div>
 
-          {/* Form */}
-          <div className="flex flex-col gap-4">
-            {error && (
-              <div className="flex items-center gap-2 px-3 py-2.5 bg-[#fee2e2] border border-[#fecaca] rounded-xl text-sm text-[#dc2626]">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                {error}
+          {/* ── Email/password form ──────────────────────────────────────────── */}
+          <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+
+            {/* API error banner */}
+            {apiError && (
+              <div className="flex items-start gap-2.5 px-3.5 py-3 bg-[#fef2f2] border border-[#fecaca] rounded-xl text-sm text-[#dc2626]">
+                <svg className="shrink-0 mt-0.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                {apiError}
               </div>
             )}
 
+            {/* Email */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-[#6b6b6b]">Email</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-[#6b7280]">Email</label>
               <input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+                onChange={(e) => { setEmail(e.target.value); setErrors((er) => ({ ...er, email: '' })) }}
                 placeholder="you@example.com"
-                className="px-4 py-3 text-sm border border-[#e5e5e5] rounded-xl focus:outline-none focus:border-[#c8a951] focus:ring-2 focus:ring-[#c8a951]/10 transition bg-white"
                 autoFocus
+                className={`px-4 py-3 text-sm border rounded-xl outline-none transition bg-white placeholder:text-[#9ca3af]
+                  focus:ring-2 focus:ring-[#c8a951]/20
+                  ${errors.email ? 'border-[#ef4444] focus:border-[#ef4444]' : 'border-[#e5e7eb] focus:border-[#c8a951]'}`}
               />
+              {errors.email && <p className="text-xs text-[#ef4444]">{errors.email}</p>}
             </div>
 
+            {/* Password */}
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold uppercase tracking-wider text-[#6b6b6b]">Password</label>
-                <Link href="/forgot-password" className="text-xs text-[#c8a951] hover:underline">Forgot password?</Link>
+                <label className="text-xs font-semibold uppercase tracking-wider text-[#6b7280]">Password</label>
+                <Link href="/forgot-password" className="text-xs text-[#c8a951] hover:underline font-medium">
+                  Forgot password?
+                </Link>
               </div>
               <div className="relative">
                 <input
                   type={showPwd ? 'text' : 'password'}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+                  onChange={(e) => { setPassword(e.target.value); setErrors((er) => ({ ...er, password: '' })) }}
                   placeholder="••••••••"
-                  className="w-full px-4 py-3 pr-11 text-sm border border-[#e5e5e5] rounded-xl focus:outline-none focus:border-[#c8a951] focus:ring-2 focus:ring-[#c8a951]/10 transition bg-white"
+                  className={`w-full px-4 py-3 pr-11 text-sm border rounded-xl outline-none transition bg-white placeholder:text-[#9ca3af]
+                    focus:ring-2 focus:ring-[#c8a951]/20
+                    ${errors.password ? 'border-[#ef4444] focus:border-[#ef4444]' : 'border-[#e5e7eb] focus:border-[#c8a951]'}`}
                 />
-                <button onClick={() => setShowPwd(!showPwd)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9ca3af] hover:text-[#6b6b6b]">
+                <button
+                  type="button"
+                  onClick={() => setShowPwd(!showPwd)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9ca3af] hover:text-[#6b7280] transition-colors"
+                >
                   {showPwd
                     ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                     : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                   }
                 </button>
               </div>
+              {errors.password && <p className="text-xs text-[#ef4444]">{errors.password}</p>}
             </div>
 
-            <label className="flex items-center gap-2.5 cursor-pointer">
-              <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="accent-[#c8a951]" />
-              <span className="text-sm text-[#6b6b6b]">Remember me</span>
-            </label>
-
             <button
-              onClick={handleSubmit}
+              type="submit"
               disabled={loading}
-              className="w-full py-3 bg-[#111111] text-white font-semibold text-sm rounded-xl hover:bg-[#2a2a2a] disabled:opacity-60 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+              className="w-full py-3 bg-[#111827] text-white font-semibold text-sm rounded-xl hover:bg-[#1f2937] disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.99] flex items-center justify-center gap-2 mt-1"
             >
-              {loading && <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".25"/><path d="M21 12a9 9 0 00-9-9"/></svg>}
+              {loading && (
+                <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 12a9 9 0 00-9-9" strokeLinecap="round"/>
+                </svg>
+              )}
               {loading ? 'Signing in…' : 'Sign In'}
             </button>
-          </div>
+          </form>
 
-          <p className="text-center text-sm text-[#9ca3af] mt-5">
-            Don't have an account?{' '}
-            <Link href="/register" className="text-[#c8a951] font-semibold hover:underline">Create one free</Link>
+          {/* Vendor / seller link */}
+          <p className="text-center text-xs text-[#9ca3af] mt-6">
+            Want to sell on Vendorly?{' '}
+            <Link href="/vendor/register" className="text-[#c8a951] font-medium hover:underline">Apply as a seller</Link>
           </p>
-
-          {tab === 'login' && (
-            <p className="text-center text-sm text-[#9ca3af] mt-2">
-              Want to sell on Vendorly?{' '}
-              <Link href="/vendor/register" className="text-[#c8a951] font-semibold hover:underline">Become a seller</Link>
-            </p>
-          )}
         </div>
       </div>
+
     </div>
   )
 }

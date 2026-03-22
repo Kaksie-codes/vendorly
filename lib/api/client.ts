@@ -1,17 +1,9 @@
 // -----------------------------------------------------------------------------
 // File: client.ts
 // Path: lib/api/client.ts
-//
-// Base API client — a thin fetch wrapper with auth token injection,
-// JSON serialisation, and typed error handling.
-//
-// Usage:
-//   import { apiClient } from '@/lib/api/client'
-//   const orders = await apiClient.get<Order[]>('/vendor/orders')
-//   const product = await apiClient.post<Product>('/vendor/products', payload)
 // -----------------------------------------------------------------------------
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api'
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api'
 
 class ApiError extends Error {
   constructor(
@@ -29,12 +21,13 @@ async function request<T>(
   path: string,
   body?: unknown,
 ): Promise<T> {
-  // TODO: pull token from your auth store (Zustand) once auth is wired up
-  // import { useAuthStore } from '@/store/authStore'
-  // const token = useAuthStore.getState().token
+  // Read token from auth store — works outside React components via getState()
+  // Imported inline to avoid circular dependency issues during SSR
+  const { useAuthStore } = await import('@/store/authStore')
+  const token = useAuthStore.getState().token
 
   const headers: HeadersInit = { 'Content-Type': 'application/json' }
-  // if (token) headers['Authorization'] = `Bearer ${token}`
+  if (token) headers['Authorization'] = `Bearer ${token}`
 
   const res = await fetch(`${BASE_URL}${path}`, {
     method,
@@ -52,11 +45,11 @@ async function request<T>(
 }
 
 export const apiClient = {
-  get:    <T>(path: string)                   => request<T>('GET',    path),
-  post:   <T>(path: string, body: unknown)    => request<T>('POST',   path, body),
-  put:    <T>(path: string, body: unknown)    => request<T>('PUT',    path, body),
-  patch:  <T>(path: string, body: unknown)    => request<T>('PATCH',  path, body),
-  delete: <T>(path: string)                   => request<T>('DELETE', path),
+  get:    <T>(path: string)                => request<T>('GET',    path),
+  post:   <T>(path: string, body: unknown) => request<T>('POST',   path, body),
+  put:    <T>(path: string, body: unknown) => request<T>('PUT',    path, body),
+  patch:  <T>(path: string, body: unknown) => request<T>('PATCH',  path, body),
+  delete: <T>(path: string)               => request<T>('DELETE', path),
 }
 
 export { ApiError }

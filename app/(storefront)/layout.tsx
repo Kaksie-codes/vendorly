@@ -3,19 +3,16 @@
 // Path: app/(storefront)/layout.tsx
 // -----------------------------------------------------------------------------
 
-import React from 'react'
-import { Navbar }       from '@/components/layout/Navbar'
-import { Footer }       from '@/components/layout/Footer'
-import { CartProvider } from '@/providers/CartProvider'
-import { AIAssistant }  from '@/components/ui/AIAssistant'
+import React                       from 'react'
+import { CartProvider }            from '@/providers/CartProvider'
+import { AIAssistant }             from '@/components/ui/AIAssistant'
+import { ConditionalLayout }       from '@/components/layout/ConditionalLayout'
 
 export default function StorefrontLayout({ children }: { children: React.ReactNode }) {
   return (
     <CartProvider>
       <div className="flex flex-col min-h-screen bg-white">
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <ConditionalLayout>{children}</ConditionalLayout>
         <AIAssistant />
       </div>
     </CartProvider>

@@ -1,47 +1,42 @@
 // -----------------------------------------------------------------------------
 // File: authStore.ts
 // Path: store/authStore.ts
-//
-// Auth session store using Zustand.
-// Install: npm install zustand
-//
-// This replaces the need for prop-drilling auth state through layouts.
-// TanStack Query reads the token from here via apiClient.ts.
 // -----------------------------------------------------------------------------
 
-// import { create } from 'zustand'
-// import { persist } from 'zustand/middleware'
-// import type { User } from '@/types'
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
-// interface AuthState {
-//   user:     User | null
-//   token:    string | null
-//   isAuthed: boolean
+export interface AuthUser {
+  id:        string
+  firstName: string
+  lastName:  string
+  email:     string
+  role:      string
+}
 
-//   setAuth:  (user: User, token: string) => void
-//   clearAuth: () => void
-// }
+interface AuthState {
+  user:      AuthUser | null
+  token:     string | null
+  isAuthed:  boolean
 
-// export const useAuthStore = create<AuthState>()(
-//   persist(
-//     (set) => ({
-//       user:     null,
-//       token:    null,
-//       isAuthed: false,
+  setAuth:   (user: AuthUser, token: string) => void
+  clearAuth: () => void
+}
 
-//       setAuth: (user, token) => set({ user, token, isAuthed: true }),
-//       clearAuth: ()          => set({ user: null, token: null, isAuthed: false }),
-//     }),
-//     {
-//       name: 'vendorly-auth',   // localStorage key
-//       partialize: (state) => ({ token: state.token }),  // only persist token
-//     },
-//   ),
-// )
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      user:     null,
+      token:    null,
+      isAuthed: false,
 
-// ── Usage example ─────────────────────────────────────────────────────────────
-// const { user, isAuthed, setAuth, clearAuth } = useAuthStore()
-// After login: setAuth(user, token)
-// In apiClient: const token = useAuthStore.getState().token
-
-export {}
+      setAuth:   (user, token) => set({ user, token, isAuthed: true }),
+      clearAuth: ()            => set({ user: null, token: null, isAuthed: false }),
+    }),
+    {
+      name: 'vendorly-auth',
+      // Persist both token and user so the navbar/pages have the data on reload
+      partialize: (state) => ({ token: state.token, user: state.user, isAuthed: state.isAuthed }),
+    },
+  ),
+)

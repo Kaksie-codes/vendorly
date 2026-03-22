@@ -5,14 +5,22 @@
 
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useRouter }    from 'next/navigation'
+import { useAuthStore } from '@/store/authStore'
+import { apiClient }    from '@/lib/api/client'
 
 export function SignOutModal({ onClose }: { onClose: () => void }) {
-  const router = useRouter()
+  const router    = useRouter()
+  const clearAuth = useAuthStore((s) => s.clearAuth)
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
+    // Tell the backend to invalidate the session — fire and forget,
+    // we don't block the UI on this call
+    apiClient.post('/auth/logout', {}).catch(() => {})
+
+    clearAuth()
     onClose()
-    router.push('/')
+    router.push('/login')
   }
 
   return (
